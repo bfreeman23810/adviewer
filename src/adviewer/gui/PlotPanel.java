@@ -1015,7 +1015,7 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
                         //Log.log("Should be processing ... ", debug);
                     }
                     
-                    DecimalFormat format = new DecimalFormat("000.00");
+                    DecimalFormat format = new DecimalFormat("000.0000");
                     
                     if(showFit ) writeToFitLabels( format.format( plot.min ), 
                                                    format.format( plot.max ),
@@ -1024,6 +1024,12 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
                                                    format.format( 2*plot.dev),
                                                    format.format( plot.fwhm)
                                                    );
+                    
+                    if(adMain != null){
+                        if(adMain.unitsVal != null && srcImp!=null) adMain.unitsVal.setText(
+                                srcImp.getCalibration().getUnits()
+                        );
+                    } 
 
                 }
                 synchronized (this) {

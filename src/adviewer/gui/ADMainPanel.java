@@ -151,6 +151,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public JLabel rmsYVal;
     public JLabel twoRmsYVal;
     public JLabel fwhmYVal;
+    public JLabel unitsVal;
 
     public ADMainPanel(CameraConfig cam, ADWindow win, int guiBuildNumber) {
         super();
@@ -220,7 +221,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     public Component createImagePanelContainer() {
         imagePanelContainer = new Panel(new GridBagLayout());
-
+        gc.weightx = gc.weighty = 1.0;
         gc.gridx = 1;
         gc.gridy = 0;
 
@@ -334,31 +335,42 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     public Component createPlotPanel() {
 
-        Panel plots = new Panel();
+        Panel plots = new Panel(new GridBagLayout());
 
         JPanel p = new JPanel(new GridBagLayout());
 
         GridBagConstraints gc = new GridBagConstraints();
-
-        gc.gridx = 0;
-        gc.gridy = 0;
-
-        p.add(createXPlotsButtonPanel(), gc);
-
+        gc.weightx = gc.weighty = 1.0;
+        gc.fill = GridBagConstraints.BOTH;
+        gc.anchor = GridBagConstraints.WEST;
+        
         gc.gridx = 0;
         gc.gridy = 1;
-
-        p.add(createYPlotsButtonPanel(), gc);
+        p.add(createXPlotsButtonPanel(), gc);
 
         gc.gridx = 0;
         gc.gridy = 2;
 
+        p.add(createYPlotsButtonPanel(), gc);
+        
+        gc.gridx = 0;
+        gc.gridy = 3;
+
+        p.add(createUnitsPanel(), gc);
+        
+        gc.gridx = 0;
+        gc.gridy = 4;
+
+        
+        
         JPanel p2 = new JPanel(new FlowLayout(5));
         p2.add(createXFitsPanel());
         p2.add(createYFitsPanel());
         p.add(p2, gc);
-
-        plots.add(p);
+        
+        gc.gridx = 0;
+        gc.gridy = 0;
+        plots.add(p, gc);
 
         return plots;
 
@@ -397,10 +409,12 @@ public class ADMainPanel extends JPanel implements ActionListener {
         tabs.add(createPlotPanel(), "Plots");
         tabs.add(createSavePanel(), "Save");
 
+        
         tabs.setSelectedIndex(2);
 
         eastPanel.add(tabs);
 
+        
         return eastPanel;
     }
 
@@ -466,11 +480,15 @@ public class ADMainPanel extends JPanel implements ActionListener {
     }
 
     public Component createImagePanel() {
-        Panel panel = new Panel(new BorderLayout(2, 2));
+        Panel panel = new Panel(new GridBagLayout());
         // panel.setPreferredSize(new Dimension(200 , 30) );
         GridBagLayout layout = new GridBagLayout();
         GridBagConstraints gc = new GridBagConstraints();
 
+        gc.weightx =1.0;
+        gc.weighty = 1.0;
+        gc.fill = GridBagConstraints.BOTH;
+        
         JPanel p = new JPanel();
         p.setLayout(layout);
 
@@ -502,7 +520,10 @@ public class ADMainPanel extends JPanel implements ActionListener {
         //gc.gridy = 0;
         //gc.anchor = GridBagConstraints.WEST;
         // p.add(createFindEdgesPanel(), gc);
-        panel.add(p, BorderLayout.SOUTH);
+        
+        gc.gridx = 0;
+        gc.gridy = 0;
+        panel.add(p, gc);
         return panel;
     }
 
@@ -538,7 +559,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     }
 
     public Component createXPlotsButtonPanel() {
-        Panel panel = new Panel(new FlowLayout(2));
+        Panel panel = new Panel();
 
         JPanel p = new JPanel(new FlowLayout(2));
 
@@ -681,15 +702,33 @@ public class ADMainPanel extends JPanel implements ActionListener {
         return panel;
     }
 
+    public Component createUnitsPanel() {
+        Panel panel = new Panel();
+        
+        JPanel p = new JPanel(new FlowLayout(2));
+        
+        JLabel unitsLabel =  new JLabel("Units :   ");
+        unitsVal  = new JLabel( this.impp.getCalibration().getUnits() );
+        
+       p.add(unitsLabel);
+       p.add(unitsVal);
+        
+        title = BorderFactory.createTitledBorder("Units");
+        p.setBorder(title);
+        panel.add(p);
+        return panel;
+    }
+    
     public Component createXFitsPanel() {
 
         Panel panel = new Panel();
 
         JPanel p = new JPanel(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
-
+        gc.weightx = gc.weighty = 1.0;
+        
         String sigma = "\u03A3";
-        Dimension d = new Dimension(50, 20);
+        Dimension d = new Dimension(70, 20);
 
         JLabel min = new JLabel("Y Min:      ");
         minXVal = new JLabel("min   ");
@@ -786,7 +825,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         GridBagConstraints gc = new GridBagConstraints();
 
         String sigma = "\u03A3";
-        Dimension d = new Dimension(50, 20);
+        Dimension d = new Dimension(70, 20);
         
         JLabel min = new JLabel("X Min:      ");
         minYVal = new JLabel("min                ");
@@ -876,11 +915,13 @@ public class ADMainPanel extends JPanel implements ActionListener {
     }
 
     public Component createToolsPanel() {
-        Panel panel = new Panel(new BorderLayout(2, 2));
+        Panel panel = new Panel(new GridBagLayout());
         // panel.setPreferredSize(new Dimension(200 , 30) );
         GridBagLayout layout = new GridBagLayout();
         GridBagConstraints gc = new GridBagConstraints();
-
+        gc.weightx = gc.weighty = 1.0;
+        gc.fill = GridBagConstraints.BOTH;
+        
         JPanel p = new JPanel();
         p.setLayout(layout);
 
@@ -901,16 +942,21 @@ public class ADMainPanel extends JPanel implements ActionListener {
         gc.anchor = GridBagConstraints.WEST;
 
         p.add(createTestButton(), gc);
-        panel.add(p, BorderLayout.NORTH);
+        
+        gc.gridx = 0;
+        gc.gridy = 0;
+        panel.add(p, gc);
         return panel;
     }
 
     public Component createSavePanel() {
-        Panel panel = new Panel(new BorderLayout(2, 2));
+        Panel panel = new Panel(new GridBagLayout());
         // panel.setPreferredSize(new Dimension(200 , 30) );
         GridBagLayout layout = new GridBagLayout();
         GridBagConstraints gc = new GridBagConstraints();
-
+        gc.weightx = gc.weighty = 1.0;
+        gc.fill = GridBagConstraints.BOTH;
+        
         JPanel p = new JPanel();
         p.setLayout(layout);
 
@@ -930,7 +976,11 @@ public class ADMainPanel extends JPanel implements ActionListener {
         gc.anchor = GridBagConstraints.WEST;
 
         p.add(createSaveRoiAsPanel(), gc);
-        panel.add(p, BorderLayout.NORTH);
+        
+        gc.gridx = 0;
+        gc.gridy = 0;
+        
+        panel.add(p, gc);
         return panel;
     }
 
