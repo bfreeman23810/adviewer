@@ -1,22 +1,41 @@
 #!/bin/sh
+#
+# Brian Freeman 
+# run - Script to setup lib path and the run adviewer.gui.ADWindow.java 
+# November 14, 2015
+#
+########################################################################s
 
-#P="/a/dvlcsue/dvlhome/apps/a/adViewer/dvl_2-0/support/jars"
-P="/root/workspace/java/adviewer/lib"
+# library path
+LP=$(pwd)"/lib"
+echo "lib path = ${LP}"
 
-#SRC="/a/dvlcsue/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/src"
-#BIN="/a/dvlcsue/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/bin"
-SRC="/root/workspace/java/adviewer/src"
-BIN="/root/workspace/java/adviewer/bin"
+#src folder
+SRC=$(pwd)"/src"
 
-for jar in `ls $P| grep .jar `
+#where class files are
+BIN=$(pwd)"/bin"
+
+#temp for building class path
+temp=""
+
+#loop through library files and add .jars to class path
+for jar in `ls $LP| grep .jar `
 do
-	temp=${P}"/"${jar}":"${temp}
+	temp="${LP}/${jar}:${temp}"
 done
 
-temp=${temp}":."
+temp="${temp}:."
 
+#print temp for debuging
+echo "class files =${temp}"
+
+#pass dir to ADWindow.java so the java file knows where it is executed from.
 dir=`pwd` 
 
+#switch to bin directory...
 cd $BIN
 
+#execute java
+echo "executing java ...... "
 java -cp $temp adviewer.gui.ADWindow -d "${dir}" "$@"

@@ -1,7 +1,16 @@
 #!/bin/sh
+#
+# Brian Freeman
+# make - Script to make the class files
+# November 14, 2015
+# 
+########################################################################
 
-P="/root/workspace/java/adviewer/lib"
 
+#path to lib files
+P=$(pwd)"/lib"
+
+#go through lib files and add to class path
 for jar in `ls $P| grep .jar `
 do
 	temp=$P"/"$jar":"$temp
@@ -15,12 +24,13 @@ CP=$temp":."
 SRC="./src/adviewer"
 BIN="../../bin"
 
-cd $SRC
+cd ${SRC}
+
 pwd
+
+#find all .java files and attrmpt to build them
 find -name "*.java" > sources.txt
 #more sources.txt
-#javac -cp $CP -d $BIN @sources.txt
+
 javac -cp $CP -d $BIN @sources.txt
 
-#cd .$BIN
-#java -cp $CP ADMain 
