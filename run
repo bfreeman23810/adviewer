@@ -1,0 +1,22 @@
+#!/bin/sh
+
+#P="/a/dvlcsue/dvlhome/apps/a/adViewer/dvl_2-0/support/jars"
+P="/root/workspace/java/adviewer/lib"
+
+#SRC="/a/dvlcsue/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/src"
+#BIN="/a/dvlcsue/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/bin"
+SRC="/root/workspace/java/adviewer/src"
+BIN="/root/workspace/java/adviewer/bin"
+
+for jar in `ls $P| grep .jar `
+do
+	temp=${P}"/"${jar}":"${temp}
+done
+
+temp=${temp}":."
+
+dir=`pwd` 
+
+cd $BIN
+
+java -cp $temp adviewer.gui.ADWindow -d "${dir}" "$@"
