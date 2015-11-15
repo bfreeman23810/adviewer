@@ -6,15 +6,18 @@
 #
 ########################################################################s
 
+DIR="$(dirname "$(readlink -f "$0")")"
+echo ${DIR}
+
 # library path
-LP=$(pwd)"/lib"
+LP="${DIR}/lib"
 echo "lib path = ${LP}"
 
 #src folder
-SRC=$(pwd)"/src"
+SRC="${DIR}/src"
 
 #where class files are
-BIN=$(pwd)"/bin"
+BIN="${DIR}/bin"
 
 #temp for building class path
 temp=""
@@ -38,4 +41,4 @@ cd $BIN
 
 #execute java
 echo "executing java ...... "
-java -cp $temp adviewer.gui.ADWindow -d "${dir}" "$@"
+java -cp $temp adviewer.gui.ADWindow -d "${DIR}" "$@"
