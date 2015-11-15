@@ -21,6 +21,7 @@ import adviewer.image.ImageStream;
 import adviewer.image.MJPGImageStream;
 import adviewer.image.Stream;
 import adviewer.util.CameraConfig;
+import adviewer.util.LUTCollection;
 import adviewer.util.Log;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
@@ -61,6 +62,7 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
     public static final String MJPG = "mjpg";
     public static final String EPICS = "epics";
     public boolean streamChanged = false;
+    private LUTCollection luts;
 
     ImagePanel() {
         super();
@@ -87,12 +89,7 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
 
         waitForFirstImage(); //block thread until image is aquired
 
-
-        if (isImageAquired && img != null) {
-        }
-
         Log.log("image was aquired ....", win.debug);
-
 
         timer = new Timer(this.TIME, this);
         init();
@@ -157,10 +154,29 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
             //System.out.println("isImage = "+ isImage);
             if (isImage) {
                 try {
+                    if (win != null) {
+                        luts = win.luts;
+                    }
                     if (cam.getConnectionType().equals(MJPG)) {
-                        this.impp = new ImagePlusPlus(cam.getName(), img, this.streamer);
+                        if (luts != null) {
+                            this.impp = new ImagePlusPlus(cam.getName(), img, this.streamer, luts);
+                        } else {
+                            this.impp = new ImagePlusPlus(cam.getName(), img, this.streamer);
+                        }
                     } else {
-                        this.impp = new ImagePlusPlus(cam.getName(), new ByteProcessor(streamer.imageWidth, streamer.imageHeight, streamer.getRawImage()), this.streamer);
+
+                        if (luts != null) {
+                            this.impp = new ImagePlusPlus(cam.getName(),
+                                    new ByteProcessor(streamer.imageWidth, streamer.imageHeight, streamer.getRawImage()),
+                                    this.streamer,
+                                    this.luts);
+                        } else {
+
+                            this.impp = new ImagePlusPlus(cam.getName(),
+                                    new ByteProcessor(streamer.imageWidth, streamer.imageHeight, streamer.getRawImage()),
+                                    this.streamer
+                            );
+                        }
                     }
 
                     this.impp.showMe();
@@ -295,7 +311,6 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
 
     public void doImageStuff() {
 
-
         //Log.log("Action preformed", win.debug);
         this.streamer.setImageTitle();
 
@@ -324,10 +339,11 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
             Thread.sleep(TIME + 100);
             streamChanged = false; // always set back to false
             Log.log(" stream changed back to = " + streamChanged, win.debug);
-        }
-        catch(Exception e){
-          Log.log("Problem with setting new stream",win.debug);
-          if(win.debug) e.printStackTrace();
+        } catch (Exception e) {
+            Log.log("Problem with setting new stream", win.debug);
+            if (win.debug) {
+                e.printStackTrace();
+            }
         }
     }
 }

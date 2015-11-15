@@ -1,0 +1,33 @@
+#/bin/sh
+
+#get config path
+
+CONFIGDIR="$(pwd)/config"
+CONFIGFILE="${CONFIGDIR}/adviewer.config"
+
+LUTDIR="$(pwd)/LUT"
+ICONPATH="$(pwd)/icons/"
+CLASSPATH="$(pwd)/bin"
+CAMCONFIG="${CONFIGDIR}/cam.json"
+
+if [ -e ${CONFIGFILE} ]
+then
+
+		echo "CONFFIG = ${CONFIGFILE}"
+	
+else
+
+		echo "no such file ... creating"
+		cd ${CONFIGDIR}
+		touch ${CONFIGFILE}
+fi
+
+
+echo "LUTPATH=${LUTDIR}" > ${CONFIGFILE}
+echo "ICONPATH=${ICONPATH}">> ${CONFIGFILE}
+echo "CAMCONFIG=${CAMCONFIG}">> ${CONFIGFILE}
+echo "CLASSPATH=${CLASSPATH}">> ${CONFIGFILE}
+
+
+
+

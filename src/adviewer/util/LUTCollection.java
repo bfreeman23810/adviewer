@@ -10,11 +10,15 @@ import java.util.Scanner;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+/**
+ * LUTCollection.java 
+ * This is a collection of imagej .lut files. This class will take in the 
+ * directory where they are stored (defined in adviewer.config) and then 
+ * build a hash map of luts
+ * @author Brian Freeman (bfreeman@jlab.org)
+ */
 public class LUTCollection {
 
-    public static String ADCONFIG = "/root/workspace/java/adviewer/config/adviewer.config";
-        //public static String ADCONFIG = "/cs/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/config/adviewer.config";
-    //String LUTPATH = "/cs/dvlhome/apps/a/adViewer/dvl_2-0/support/lut/" ;
     public String LUTPATH = "./lut/";
 
     private ArrayList<String> results;
@@ -24,37 +28,18 @@ public class LUTCollection {
     public File configFile;
     public Scanner sc;
 
-    public LUTCollection() {
-        results = new ArrayList<String>();
-        map = new HashMap<String, String>();
-
-        try {
-
-            configFile = new File(ADCONFIG);
-            sc = new Scanner(configFile);
-            getLUTPath();
-
-            files = new File(LUTPATH).listFiles();
-
-            getFileNames();
-            //printList();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
+    /**
+     * Constructor takes in the directory where the.lut files are stored
+     * @param lutpath 
+     * @param debug 
+     */
     public LUTCollection(String lutpath, boolean debug) {
         results = new ArrayList<String>();
         map = new HashMap<String, String>();
 
         try {
 
-            configFile = new File(lutpath);
-            sc = new Scanner(configFile);
-            getLUTPath();
-
-            files = new File(LUTPATH).listFiles();
+            files = new File(lutpath).listFiles();
 
             getFileNames();
             //printList();
@@ -130,8 +115,5 @@ public class LUTCollection {
         }
     }
 
-	//public static void main(String[] args){
-    //LUTCollection luts = new LUTCollection();
-    //luts.printList();
-    //}
+
 }

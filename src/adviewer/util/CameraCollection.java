@@ -76,21 +76,20 @@ public class CameraCollection {
     }
 
     /**
-     * pass in a config file, this is the main config file. The actual cam list
-     * xml file is defined there
+     * pass in a config file, this is the config file. Currently using cam.json 
      *
-     * @param adconfigPath
+     * @param configPath = cam.json- defined in adviewer.config
      * @param debug
      */
-    public CameraCollection(String adconfigPath, boolean debug) {
+    public CameraCollection(String configPath, boolean debug) {
 
         cameras = new ArrayList<CameraConfig>();
         map = new HashMap<String, CameraConfig>();
         this.debug = debug;
 
         try {
-            String path = getCameras(adconfigPath);
-            configFile = new File(path);
+            //String path = getCameras(configPath);
+            configFile = new File(configPath);
             sc = new Scanner(configFile);
 
             //getList();
@@ -103,8 +102,9 @@ public class CameraCollection {
                 printCams();
             }
         } catch (Exception e) {
-            System.err.println("There was a problem with the config file .... please have a look ... adviewer.util.CameraCollection ..... line 57\n");
-            if (debug) {
+            Log.log("There was a problem parsing the camera config file = " + CAMERACONFIGPATH , debug);           
+        
+        if (debug) {
                 e.printStackTrace();
             }
         }
@@ -397,8 +397,5 @@ public class CameraCollection {
         }
     }
 
-//main for testing this class
-    public static void main(String[] args) {
-        CameraCollection c = new CameraCollection(ADWindow.ADCONFIG, true);
-    }
+
 }

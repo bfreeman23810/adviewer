@@ -79,9 +79,17 @@ public class Menus {
         init();
     }
 
+    public Menus(ImagePlusPlus impp , LUTCollection luts) {
+        //Log.log("Here in menus ................... " , debug);
+        this.impp = impp;
+        this.lc = luts;
+        init();
+    }
+    
     public Menus(ImagePlusPlus impp) {
         //Log.log("Here in menus ................... " , debug);
         this.impp = impp;
+        
         init();
     }
 
@@ -106,11 +114,10 @@ public class Menus {
                     lc = this.win.luts;
                     this.debug = this.win.debug;
                     //Log.log("ADWindow luts were found .... " , debug);
-                } else {
-                    //Log.log("New luts being made ... " , debug);
-                    lc = new LUTCollection(ADWindow.ADCONFIG, debug);
+                } 
+                else{
+                        Log.log("Check lut collection in ADWWindow" ,debug);
                 }
-
             } catch (Exception e) {
                 Log.log("Problem with setting the LUT", debug);
                 if (debug) {

@@ -7,6 +7,7 @@
 ./util/JSONIO.java
 ./util/Log.java
 ./util/SystemCommand.java
+./util/Config.java
 ./util/CameraConfig.java
 ./util/LUTCollection.java
 ./util/ViewerCollection.java
@@ -15,13 +16,13 @@
 ./util/Viewer.java
 ./util/Helpers.java
 ./util/CameraCollection.java
+./plot/PlotPanel.java
+./plot/PlotCanvasPlus.java
+./plot/PlotPlus.java
+./plot/PlotProfilePlus.java
 ./gui/Menus.java
 ./gui/Legend.java
-./gui/PlotPanel.java
-./gui/PlotCanvasPlus.java
 ./gui/ButtonIcon.java
-./gui/PlotPlus.java
-./gui/PlotProfilePlus.java
 ./gui/ImagePanel.java
 ./gui/ADMainPanel.java
 ./gui/ADWindow.java

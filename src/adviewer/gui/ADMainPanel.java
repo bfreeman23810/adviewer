@@ -1,5 +1,7 @@
 package adviewer.gui;
 
+import adviewer.plot.PlotPlus;
+import adviewer.plot.PlotPanel;
 import ij.gui.ImageCanvas;
 
 import java.awt.BorderLayout;
@@ -123,7 +125,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public boolean isEastShowing;
     public boolean isXPlotShowing = false;
     public boolean isYPlotShowing = false;
-    public String pathToIcons = "/root/workspace/java/adviewer/icons/";
+    private String pathToIcons = "/root/workspace/java/adviewer/icons/";
     //public String pathToIcons = "/a/dvlcsue/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/icons/";
     private int guiBuildNumber;
     private FileSaver saver;
@@ -2089,5 +2091,13 @@ public class ADMainPanel extends JPanel implements ActionListener {
     protected void paintComponent(Graphics g) {
         // TODO Auto-generated method stub
         super.paintComponent(g);
+    }
+
+    public String getIconPath(){
+        return this.pathToIcons;    
+    }
+    
+    void setIconPath(String iconPath) {
+        this.pathToIcons = iconPath;
     }
 }

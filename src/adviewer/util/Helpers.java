@@ -5,8 +5,8 @@
  */
 package adviewer.util;
 
-import adviewer.gui.PlotPlus;
-import adviewer.gui.PlotProfilePlus;
+import adviewer.plot.PlotPlus;
+import adviewer.plot.PlotProfilePlus;
 import adviewer.image.ImagePlusPlus;
 import ij.IJ;
 import ij.ImagePlus;

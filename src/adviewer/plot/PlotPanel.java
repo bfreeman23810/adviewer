@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package adviewer.gui;
+package adviewer.plot;
 
+import adviewer.gui.ADMainPanel;
 import adviewer.util.Helpers;
 import adviewer.util.Log;
 import ij.IJ;

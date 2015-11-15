@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.Vector;
 
 import adviewer.gui.Menus;
+import adviewer.util.LUTCollection;
 import adviewer.util.Log;
 
 /**
@@ -81,6 +82,7 @@ public class ImagePlusPlus extends ImagePlus {
     public ImageProcessor imageProcessor;
 
     public MouseListener popupListener;
+    public LUTCollection luts;
 
     /*MenuItem start;
      MenuItem stop;
@@ -114,6 +116,12 @@ public class ImagePlusPlus extends ImagePlus {
 
     public ImagePlusPlus(String pathOrUrl) {
         super(pathOrUrl);
+        init();
+    }
+    
+     public ImagePlusPlus(String pathOrUrl , LUTCollection luts) {
+        super(pathOrUrl);
+        this.luts = luts;
         init();
     }
 
@@ -155,10 +163,24 @@ public class ImagePlusPlus extends ImagePlus {
         imageUpdater = updater;
         init();
     }
+    
+     public ImagePlusPlus(String title, Image img, ImageStream updater, LUTCollection luts) {
+        super(title, img);
+        imageUpdater = updater;
+        this.luts = luts;
+        init();
+    }
 
     public ImagePlusPlus(String text, ImageProcessor ip, ImageStream updater) {
         super(text, ip);
         imageUpdater = updater;
+        init();
+    }
+    
+    public ImagePlusPlus(String text, ImageProcessor ip, ImageStream updater, LUTCollection luts) {
+        super(text, ip);
+        imageUpdater = updater;
+        this.luts = luts;
         init();
     }
 
@@ -191,16 +213,16 @@ public class ImagePlusPlus extends ImagePlus {
         this.myCanvas = this.getCanvas();
         this.myWindow = this.getWindow();
 
-        mainmenu = new Menus(this);
+        if(luts !=null) mainmenu = new Menus(this, luts);
+       // else mainmenu = new Menus(this);
         
-        if (this.imageUpdater != null) {
+        if (this.imageUpdater != null && mainmenu !=null ) {
             mainmenu.setImageUpdater(imageUpdater); // make sure the menu knows that is has an updater
         }
 
         popupListener = new PopupListener();
-
-       
-        popup = addContextMenu();
+        
+        if(mainmenu!=null) popup = addContextMenu();
         isClosed = true;
 
         //reference to self
