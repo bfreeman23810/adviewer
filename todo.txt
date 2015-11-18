@@ -1,0 +1,25 @@
+
+#List of known issues/ bugs or stuff that I want to do
+Features General
+1. make calibration panel
+2. redesign get viewer section, for bc channels
+3. need to get uname and pw from .json file
+4. work on switching between feeds
+5. Menu bar??
+6. Help link?
+7. info tab w/help link
+8. config manager gui, for adding cameras
+
+Plots:
+1. add ability for log scale
+2. add feature turn off averaging
+3. 
+
+Extra feeds:
+1. v4l
+2. rtsp &h264??
+
+
+Bugs
+1. sometimes repaint fails for ImageCanvas causing the image to disappear.
+2.   
