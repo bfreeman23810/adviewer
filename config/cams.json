@@ -1,0 +1,29 @@
+var cameras = [
+ {
+    "name":"Brians HP CAM 1",
+    "id":"HPCAM",
+    "url":"http://localhost:8081/stream.mjpg",
+    "type":"mjpg"  
+    
+ },{
+    "name":"Brians HP CAM 2",
+    "id":"HPCAM2",
+    "url":"http://localhost:8081/stream.mjpg",
+    "type":"mjpg",
+    "uname":"alarms",
+	"pw":"alarms1"
+    
+   
+ },{
+    "name":"Simulated EPICS Cam",
+    "id":"SIM1",
+    "url":"null",
+    "pv":"13SIM1:image1:",
+    "type":"epics",
+    
+   
+ }   
+    
+    
+];
+   
