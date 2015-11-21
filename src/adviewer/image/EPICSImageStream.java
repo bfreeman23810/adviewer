@@ -44,11 +44,9 @@ public class EPICSImageStream extends ImageStream implements Stream {
     private String zPV;
     private String heightPV;
     private String widthPV;
-
     private JCALibrary jca;
     private DefaultConfiguration conf;
     private Context ctxt;
-
     /**
      * these are EPICS channel objects to get images...
      */
@@ -64,11 +62,9 @@ public class EPICSImageStream extends ImageStream implements Stream {
     private volatile int UniqueId = 0;
     private boolean isConnected;
     private boolean isDebugMessages = false;
-
     int x = 0;
     int y = 0;
     int z = 0;
-
     private String notConnectedChannel;
     private adviewer.image.EPICSImageStream.newUniqueIdCallback cb;
     private int prevUniqueId;
@@ -77,10 +73,8 @@ public class EPICSImageStream extends ImageStream implements Stream {
     private Object cm;
     private byte[] imageBytes;
     private ByteArrayInputStream bais;
-
     private BufferedImage image;
     private byte[] pixels;
-    
     public int SLEEPTIME = 5;
 
     public EPICSImageStream(CameraConfig cam, boolean debug) {
@@ -155,10 +149,10 @@ public class EPICSImageStream extends ImageStream implements Stream {
         while (super.processing && checkConnections() && cb.isNewImageAvailable) {
             //Log.log("running ... " , super.debug)
             getValuesFromEpics();
-            
+
 
             checkSizes();
-            
+
             //updateImpp();
             //print("Running + >>>>> ");
             //need to change img
@@ -232,11 +226,11 @@ public class EPICSImageStream extends ImageStream implements Stream {
                 super.numImageUpdates++;
                 return super.impp;
             } else {
-                Log.log("Window is null...stopping ",debug);
-                
+                Log.log("Window is null...stopping ", debug);
+
 
                 if (!super.show) {
-					//getImpp().close();
+                    //getImpp().close();
 
                     //connect CA, because a clsoing window event has destroyed 
                     //the Connection;
@@ -320,7 +314,7 @@ public class EPICSImageStream extends ImageStream implements Stream {
         String imageIdPV = PVPrefix + "UniqueId_RBV";
 
         try {
-           // PVPrefix = PVPrefixText.getText();
+            // PVPrefix = PVPrefixText.getText();
 
             //logMessage("Trying to connect to EPICS PVs: " + PVPrefix, true, true);
             if (super.debug) {
@@ -507,7 +501,6 @@ public class EPICSImageStream extends ImageStream implements Stream {
             // I'd like to just do the synchronized notify here, but how do I get "this"?
             newUniqueId(ev);
         }
-
     }
 
     public void newUniqueId(MonitorEvent ev) {
@@ -606,28 +599,34 @@ public class EPICSImageStream extends ImageStream implements Stream {
         // Update our image...
         //
         //super.imageType = ctype;
-        if (img == null) {
-            Log.log(" IMG is null ....  ", super.debug);
-            return;
-        }
-
-        super.img = super.tk.createImage(img);
-        super.rawImage = img;
-        super.imgidx++;
-
-        //System.out.println( this.cam.getName() + "");
-        //ImagePlusPlus impp2 = new ImagePlusPlus(this.mycam.getName() , super.img);
-        //super.updateImpp(this.impp , impp2);
-        //super.impp = new ImagePlusPlus( "test" , super.img , this );
-        super.img.getWidth(new ImageObserver() {
-            public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-                boolean fully = ((infoflags & (ImageObserver.ALLBITS | ImageObserver.PROPERTIES)) != 0);
-                //if (fully) {
-                fireImageChange();
-                //}
-                return !fully;
+        try {
+            if (img == null) {
+                Log.log(" IMG is null ....  ", super.debug);
+                return;
             }
-        });
+
+            super.img = super.tk.createImage(img);
+            super.rawImage = img;
+            super.imgidx++;
+
+            //System.out.println( this.cam.getName() + "");
+            //ImagePlusPlus impp2 = new ImagePlusPlus(this.mycam.getName() , super.img);
+            //super.updateImpp(this.impp , impp2);
+            //super.impp = new ImagePlusPlus( "test" , super.img , this );
+            super.img.getWidth(new ImageObserver() {
+                public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+                    boolean fully = ((infoflags & (ImageObserver.ALLBITS | ImageObserver.PROPERTIES)) != 0);
+                    //if (fully) {
+                    fireImageChange();
+                    //}
+                    return !fully;
+                }
+            });
+        } catch (Exception e) {
+
+            Log.log("Issue with creating image....", debug);
+            Log.log(e.getMessage(), debug);
+        }
 
     }
 
@@ -653,5 +652,4 @@ public class EPICSImageStream extends ImageStream implements Stream {
 
         return super.impp;
     }
-
 }

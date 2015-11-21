@@ -8,7 +8,7 @@ CONFIGFILE="${CONFIGDIR}/adviewer.config"
 LUTDIR="$(pwd)/LUT"
 ICONPATH="$(pwd)/icons/"
 CLASSPATH="$(pwd)/bin"
-CAMCONFIG="${CONFIGDIR}/cam.json"
+CAMCONFIG="${CONFIGDIR}/cams.json"
 
 if [ -e ${CONFIGFILE} ]
 then

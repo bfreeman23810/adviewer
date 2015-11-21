@@ -1,0 +1,197 @@
+var cameras = [
+   {
+       "id" : "BCAM1",
+        "pv":"null",
+        "name":"Brian's test cam1",
+        "ioc":"null",
+        "type":"mjpg",
+        "url":"http://subopsl08:8082/stream.mjpg"
+      
+      
+   },{
+        "id" : "BC1",
+        "pv":"null",
+        "name":"Blue Cherry Ch 1",
+        "ioc":"null",
+        "type":"mjpg",
+        "url":"https://opsdvr:7001/media/mjpeg.php?multipart=false&id=4",
+		"uname":"alarms",
+		"pw":"alarms1"
+   },{
+      "id" : "BC2",
+        "pv":"null",
+        "name":"Blue Cherry Ch 2",
+        "ioc":"null",
+        "type":"mjpg",
+        "url":"https://opsdvr:7001/media/mjpeg.php?multipart=false&id=5"  
+  
+   },{
+      "id" : "BC3",
+        "pv":"null",
+        "name":"Blue Cherry Ch 3",
+        "ioc":"null",
+        "type":"mjpg",
+        "url":"https://opsdvr:7001/media/mjpeg.php?multipart=false&id=3"  
+  
+   },{
+      "id" : "BC4",
+        "pv":"null",
+        "name":"Blue Cherry Ch 4",
+        "ioc":"null",
+        "type":"mjpg",
+        "url":"https://opsdvr:7001/media/mjpeg.php?multipart=false&id=6"  
+  
+   },{
+      "id" : "INC_CAM",
+        "pv":"null",
+        "name":"INC Test 1",
+        "ioc":"null",
+        "type":"mjpg",
+        "url":"https://opsdvr:7001/media/mjpeg.php?multipart=false&id=7"  
+  
+   },{
+        "id" : "LERFBC1",
+        "pv":"null",
+        "name":"LERF - Blue Cherry Ch 1",
+        "ioc":"null",
+        "type":"mjpg",
+        "url":"https://feldvr:7001/media/mjpeg.php?multipart=false&id=1"
+   },{
+        "id" : "LERFBC2",
+        "pv":"null",
+        "name":"LERF - Blue Cherry Ch 1",
+        "ioc":"null",
+        "type":"mjpg",
+        "url":"https://feldvr:7001/media/mjpeg.php?multipart=false&id=2"
+   },{
+        "id" : "LERFBC3",
+        "pv":"null",
+        "name":"LERF - Blue Cherry Ch 1",
+        "ioc":"null",
+        "type":"mjpg",
+        "url":"https://feldvr:7001/media/mjpeg.php?multipart=false&id=3"
+   },{
+        "id" : "LERFBC4",
+        "pv":"null",
+        "name":"LERF - Blue Cherry Ch 1",
+        "ioc":"null",
+        "type":"mjpg",
+        "url":"https://feldvr:7001/media/mjpeg.php?multipart=false&id=4"
+   },{
+      "id" : "INJSLM",
+        "pv":"SLMINJ:image1:",
+        "name":"INJ SLM",
+        "ioc":"iocsoftslminj",
+        "type":"epics",
+        "url":"http://opscam1:8081/SLMINJMJPG1.mjpg"  
+   },{
+      "id" : "1ASLM",
+        "pv":"SLM1A:image1:",
+        "name":"1A SLM",
+        "ioc":"iocsoftslm1a",
+        "type":"epics",
+        "url":"http://opscam1:8082/SLM1AMJPG1.mjpg"  
+   },{
+      "id" : "SLM2A",
+        "pv":"SLM2A:image1:",
+        "name":"2A SLM",
+        "ioc":"iocsoftslm2a",
+        "type":"epics",
+        "url":"http://opscam1:8083/SLM2AMJPG1.mjpg"  
+   },{
+      "id" : "AASLM",
+        "pv":"SLMAA:image1:",
+        "name":"AA SLM",
+        "ioc":"iocsoftslmaa",
+        "type":"epics",
+        "url":"http://opscam1:8084/SLMAAMJPG1.mjpg"  
+   },{
+      "id" : "BSSLM",
+        "pv":"SLMBS:image1:",
+        "name":"BS SLM",
+        "ioc":"iocsoftslmbs",
+        "type":"epics",
+        "url":"http://opscam1:8085/SLMINJMJPG1.mjpg"  
+   },{
+      "id" : "5CSLM",
+        "pv":"SLM5C:image1:",
+        "name":"5C SLM",
+        "ioc":"iocsoftslm5c",
+        "type":"epics",
+        "url":"http://opscam1:8086/SLM5CMJPG1.mjpg"  
+   },{
+      "id" : "DEV1",
+        "pv":"GC650:image1:",
+        "name":"DEV1 (GC650)",
+        "ioc":"ioccam",
+        "type":"epics",
+        "url":"http://devcam1:8080/GC650MJPG1.mjpg"  
+   },{
+      "id" : "DEV2",
+        "pv":"GC750:image1:",
+        "name":"DEV2 (GC750)",
+        "ioc":"ioccam2",
+        "type":"epics",
+        "url":"http://devcam1:8081/GC750MJPG1.mjpg"  
+   },{
+      "id" : "INJSLM_WEB",
+        "pv":"SLMINJ:image1:",
+        "name":"INJ SLM (WEB)",
+        "ioc":"iocsoftslminj",
+        "type":"mjpg",
+        "url":"http://opscam1:8081/SLMINJMJPG1.mjpg"  
+   },{
+      "id" : "1ASLM_WEB",
+        "pv":"SLM1A:image1:",
+        "name":"1A SLM (WEB)",
+        "ioc":"iocsoftslm1a",
+        "type":"mjpg",
+        "url":"http://opscam1:8082/SLM1AMJPG1.mjpg"  
+   },{
+      "id" : "SLM2A_WEB",
+        "pv":"SLM2A:image1:",
+        "name":"2A SLM (WEB)",
+        "ioc":"iocsoftslm2a",
+        "type":"mjpg",
+        "url":"http://opscam1:8083/SLM2AMJPG1.mjpg"  
+   },{
+      "id" : "AASLM_WEB",
+        "pv":"SLMAA:image1:",
+        "name":"AA SLM (WEB)",
+        "ioc":"iocsoftslmaa",
+        "type":"mjpg",
+        "url":"http://opscam1:8084/SLMAAMJPG1.mjpg"  
+   },{
+      "id" : "BSSLM_WEB",
+        "pv":"SLMBS:image1:",
+        "name":"BS SLM (WEB)",
+        "ioc":"iocsoftslmbs",
+        "type":"mjpg",
+        "url":"http://opscam1:8085/SLMINJMJPG1.mjpg"  
+   },{
+      "id" : "5CSLM_WEB",
+        "pv":"SLM5C:image1:",
+        "name":"5C SLM (WEB)",
+        "ioc":"iocsoftslm5c",
+        "type":"mjpg",
+        "url":"http://opscam1:8086/SLM5CMJPG1.mjpg"  
+   },{
+      "id" : "DEV1_WEB",
+        "pv":"GC650:image1:",
+        "name":"DEV1 (GC650)WEB)",
+        "ioc":"ioccam",
+        "type":"mjpg",
+        "url":"http://devcam1:8080/GC650MJPG1.mjpg"  
+   },{
+      "id" : "DEV2_WEB",
+        "pv":"GC750:image1:",
+        "name":"DEV2 (GC750)WEB)",
+        "ioc":"ioccam2",
+        "type":"mjpg",
+        "url":"http://devcam1:8081/GC750MJPG1.mjpg"  
+   }
+    
+];
+
+
+

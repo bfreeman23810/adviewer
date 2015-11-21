@@ -47,6 +47,8 @@ import java.awt.BorderLayout;
  */
 public class ADWindow extends ImageWindow implements WindowListener {
 
+    public static final String version = "2.0.0";
+    
     public ImagePlusPlus impp;      //ImagePlus Extension from ImageJ
     public ImageJ ij;               //IJ instance
     public ADWindow previousWindow;
@@ -60,6 +62,7 @@ public class ADWindow extends ImageWindow implements WindowListener {
 
     //These parameters are for commadline options using JCommander  
     // see: http://jcommander.org/
+    
     @Parameter(names = {"-debug"}, description = "Set Debugging ")
     public boolean debug = false;
     //@Parameter()
@@ -152,6 +155,8 @@ public class ADWindow extends ImageWindow implements WindowListener {
         //init();
     }
 
+    
+    //This version of the constructo is not currently used
     public ADWindow(ImagePlusPlus impp) {
         super(impp.getTitle());
         config = new Config(this.currDir, debug);
@@ -174,10 +179,13 @@ public class ADWindow extends ImageWindow implements WindowListener {
 
         init(impp); //must be called here
 
-        //at a minumum this window will have an ImagePanel, so adding here
-        // this.add(adpanel);
+        
     }
 
+    /**
+     * Init using a predefined camera config
+     * @param cam 
+     */
     public void init(CameraConfig cam) {
 
         this.cam = cam;
@@ -209,12 +217,14 @@ public class ADWindow extends ImageWindow implements WindowListener {
         threads.add(t);
     }
 
+    //set image stream
     void setImageStream(ImageStream stream) {
         this.stream = stream;
     }
 
     /**
-     * init is used to initialize common params
+     * init using a ImagePlusPlus object
+     * @param impp 
      */
     public void init(ImagePlusPlus impp) {
 
@@ -222,9 +232,7 @@ public class ADWindow extends ImageWindow implements WindowListener {
 
         threads = new ArrayList<Thread>();
 
-        //super.ij=ij;
-        //this.imagePanel = new ImagePanel(impp);
-        //adpanel.win = this; 
+       
         this.closed = false;
 
         // if impp is still null here then we somwthing went wrong
@@ -266,7 +274,7 @@ public class ADWindow extends ImageWindow implements WindowListener {
 
     public static void main(String[] args) {
 
-        ADWindow adwindow = new ADWindow("New", args);
+        ADWindow adwindow = new ADWindow("ADViewer " + version , args);
 
         Log.log("Here .... in main ", adwindow.debug);
 

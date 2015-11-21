@@ -281,25 +281,30 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
     @Override
     public void actionPerformed(ActionEvent ae) {
 
-        if (!streamer.isAlive() && img != null && imgBytes != null) {
-            Log.log("timer is stopping .... ", win.debug);
-            timer.stop();
-            System.exit(1);
-            return;
+        try{
+            if (!streamer.isAlive() && img != null && imgBytes != null) {
+                Log.log("timer is stopping .... ", win.debug);
+                timer.stop();
+                System.exit(1);
+                return;
+            }
+
+            if (streamChanged) {
+                changeStream();
+            }
+
+            if (this.impp != null && cam.getConnectionType().equals(MJPG) && !streamChanged) {
+                this.impp = streamer.updateImpp(this.impp, new ImagePlusPlus(cam.getName(), img));
+                doImageStuff();
+
+            } else if (this.impp != null && cam.getConnectionType().equals(EPICS) && !streamChanged) {
+                this.impp = streamer.updateImpp(this.impp, new ImagePlusPlus(cam.getName(), new ByteProcessor(streamer.imageWidth, streamer.imageHeight, streamer.getRawImage())));
+                doImageStuff();
+
+            }
         }
-
-        if (streamChanged) {
-            changeStream();
-        }
-
-        if (this.impp != null && cam.getConnectionType().equals(MJPG) && !streamChanged) {
-            this.impp = streamer.updateImpp(this.impp, new ImagePlusPlus(cam.getName(), img));
-            doImageStuff();
-
-        } else if (this.impp != null && cam.getConnectionType().equals(EPICS) && !streamChanged) {
-            this.impp = streamer.updateImpp(this.impp, new ImagePlusPlus(cam.getName(), new ByteProcessor(streamer.imageWidth, streamer.imageHeight, streamer.getRawImage())));
-            doImageStuff();
-
+        catch(Exception e){
+            Log.log(e.getMessage(), win.debug);
         }
         /**
          * else { Log.log("timer is stopping .... ", win.debug); timer.stop();

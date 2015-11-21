@@ -1012,7 +1012,7 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
                         plot.setImagePlus(imp);
                         imp.updateAndDraw();
                         pc.repaint();
-                        this.repaint();
+                        //this.repaint();
                         //Log.log("Should be processing ... ", debug);
                     }
                     
