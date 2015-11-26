@@ -454,7 +454,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         tabs.add(createPlotPanel(), "Plots");
         tabs.add(createSavePanel(), "Save");
 
-        tabs.setSelectedIndex(2);
+       // tabs.setSelectedIndex(2);
 
         eastPanel.add(tabs);
 
@@ -523,7 +523,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         Panel panel = new Panel(new GridBagLayout());
         // panel.setPreferredSize(new Dimension(200 , 30) );
         GridBagLayout layout = new GridBagLayout();
-        GridBagConstraints gc = new GridBagConstraints();
+       // GridBagConstraints gc = new GridBagConstraints();
 
         gc.weightx = 1.0;
         gc.weighty = 1.0;
@@ -1058,9 +1058,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel();
 
-        p.add(createToolButton(pathToIcons + "black_rectangle_small.png", Toolbar.RECTANGLE));
-        p.add(createToolButton(pathToIcons + "oval_black.png", "elliptical"));
-        p.add(createToolButton(pathToIcons + "polygon_small_2.png", Toolbar.FREEROI));
+        p.add(createToolButton(pathToIcons + "black_rectangle_small.png", Toolbar.RECTANGLE, "Rectangle Tool"));
+        p.add(createToolButton(pathToIcons + "oval_black.png", "elliptical","Ellpise"));
+        p.add(createToolButton(pathToIcons + "polygon_small_2.png", Toolbar.FREEROI , "Free hand"));
 
         Log.log(pathToIcons, true);
 
@@ -1079,8 +1079,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel();
 
-        p.add(createToolButton(pathToIcons + "hand_small.png", Toolbar.HAND));
-        p.add(createToolButton(pathToIcons + "mag_small.png", Toolbar.MAGNIFIER));
+        p.add(createToolButton(pathToIcons + "hand_small.png", Toolbar.HAND , "Hand tool"));
+        p.add(createToolButton(pathToIcons + "mag_small.png", Toolbar.MAGNIFIER , "<html>Left Mouse (in image) = ZoomIn,"+
+                " <br>Middle Mouse Click(in image) = ZoomOut</html>"));
 
         title = BorderFactory.createTitledBorder("Magnify");
         p.setBorder(title);
@@ -1097,10 +1098,10 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel();
 
-        p.add(createToolButton(pathToIcons + "line_small.png", Toolbar.LINE));
-        p.add(createToolButton(pathToIcons + "multiLine_small.png", Toolbar.POLYLINE));
-        p.add(createToolButton(pathToIcons + "angle_small.png", Toolbar.ANGLE));
-        p.add(createToolButton(pathToIcons + "polygon_small.png", Toolbar.FREELINE));
+        p.add(createToolButton(pathToIcons + "line_small.png", Toolbar.LINE , "Line tool"));
+        p.add(createToolButton(pathToIcons + "multiLine_small.png", Toolbar.POLYLINE , "Poly Line Tool"));
+        p.add(createToolButton(pathToIcons + "angle_small.png", Toolbar.ANGLE , "Angle Tool"));
+        p.add(createToolButton(pathToIcons + "polygon_small.png", Toolbar.FREELINE , "Free hand Line"));
 
         title = BorderFactory.createTitledBorder("Line");
         p.setBorder(title);
@@ -1116,8 +1117,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel();
 
-        p.add(createToolButton(pathToIcons + "point_small.png", Toolbar.POINT));
-        p.add(createToolButton(pathToIcons + "crosshair_small.png", Toolbar.CROSSHAIR));
+        p.add(createToolButton(pathToIcons + "point_small.png", Toolbar.POINT, "Point tool"));
+        p.add(createToolButton(pathToIcons + "crosshair_small.png", Toolbar.CROSSHAIR , "Cross Hair Tool"));
 
         title = BorderFactory.createTitledBorder("Point");
         p.setBorder(title);
@@ -1128,7 +1129,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     }
     public ArrayList<JButton> toolButtons = new ArrayList<JButton>();
 
-    public JButton createToolButton(String iconPath, final int toolId) {
+    public JButton createToolButton(String iconPath, final int toolId, String toolTip) {
 
         final JButton b = new JButton();
         b.setIcon(createImageIcon(iconPath, "tool = " + toolId));
@@ -1151,13 +1152,16 @@ public class ADMainPanel extends JPanel implements ActionListener {
         if (toolId == Toolbar.getToolId()) { //if the tool is equal to the default then set it to grren
             b.setBackground(Color.GREEN);
         }
+        
+        if(toolTip!=null) b.setToolTipText(toolTip);
+        
         //add to list of tools
         toolButtons.add(b);
         return b;
 
     }
 
-    public JButton createToolButton(String iconPath, final String toolId) {
+    public JButton createToolButton(String iconPath, final String toolId, String toolTip) {
 
         final JButton b = new JButton();
         b.setIcon(createImageIcon(iconPath, toolId));
@@ -1179,6 +1183,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         if (toolId.equals(IJ.getToolName())) {
             b.setBackground(Color.GREEN);
         }
+        if(toolTip!=null) b.setToolTipText(toolTip);
         //add to list of tools
         toolButtons.add(b);
         return b;
@@ -1318,7 +1323,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     public Component createPlayStopPanel() {
         Panel panel = new Panel();
-        JPanel p = new JPanel();
+        JPanel p = new JPanel(new FlowLayout(1));
         final Dimension d = new Dimension(28, 25);
 
         final JButton b1 = new JButton();
@@ -1328,13 +1333,15 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 b1.setBackground(Color.GREEN);
             }
         }
-
+        b1.setToolTipText("Play Live");
         final JButton b2 = new JButton();
         b2.setIcon(createImageIcon(pathToIcons + "pause_blue_small.png", "pause"));
-
+        b2.setToolTipText("Pause Live");
+        
         final JButton b3 = new JButton();
         b3.setIcon(createImageIcon(pathToIcons + "black_cam_small.png", "snap"));
-
+        b3.setToolTipText("<html>Snap Shot<br>Quick Keys = ctrl+g</html>");
+        
         //JButton b3 = new JButton();
         //b3.setIcon( createImageIcon(pathToIcons + "play_blue_small.png", "play") );
         b1.addActionListener(new ActionListener() {
