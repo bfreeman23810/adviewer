@@ -44,6 +44,7 @@ public class ButtonIcon extends JToggleButton {
         this.icon2 = ico2;
         super.setIcon(ico1);
         super.setSelectedIcon(ico2);
+       
     }
     
     public ButtonIcon(String path1, String path2) {

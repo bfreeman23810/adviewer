@@ -35,6 +35,15 @@ import com.charliemouse.cambozola.shared.ImageChangeListener;
 import ij.ImagePlus;
 import ij.process.ByteProcessor;
 
+
+/**
+ * adviewer.image.ImageStream.java is a super class for Image Streams, it is not intended to be used 
+ * directly, but instead meant to be sub classed. The sub classes will Override 
+ * the run method for thread and is responsible for updating a stream
+ * buffer of some kind. 
+ * 
+ * @author Brian Freeman
+ */
 public class ImageStream extends Thread {
 
     public ImagePlusPlus impp;
@@ -137,12 +146,14 @@ public class ImageStream extends Thread {
     public boolean isLERFBC = false;
     
 
-    ImageStream() {
+    ImageStream(CameraConfig cam) {
+        this.cam = cam;
         init();
     }
 
-    ImageStream(ImagePlusPlus impp) {
+    ImageStream(ImagePlusPlus impp , CameraConfig cam) {
         this.impp = impp;
+        this.cam = cam;
         init();
     }
 
@@ -174,10 +185,7 @@ public class ImageStream extends Thread {
         label.setIcon(icon);
         jp.add(label);
 
-        if (impp == null) {
-
-        }
-
+        
         //timer setup
         timer = new Timer(timerDelay, new ActionListener() {
 
@@ -206,6 +214,12 @@ public class ImageStream extends Thread {
         ((DecimalFormat) form).applyPattern("0.0");
 
         timer.start();
+        
+        String name = cam.getId()+"_"+ prevTime;
+        this.setName( name );
+        Log.log("Thread named = " + name , debug);
+        
+        
     }
 
     public void addImageChangeListener(ImageChangeListener cl) {
@@ -244,6 +258,7 @@ public class ImageStream extends Thread {
             impp.setTitle(s);
         }
         //	+ "               Unique Frame ID:" + getUniqueId());
+        //Log.log( this.getName() + " - " +s , debug);
     }
 
     public void slowDown(int i) {
@@ -465,8 +480,9 @@ public class ImageStream extends Thread {
              }*/
             return impp;
         } else {
-            Log.log("Window is null.. or impp is Closed .... " + impp.isClosed + "...stopping ...", debug);
-            this.stop();
+            Log.log("Window is null = "+impp.getWindow()
+                    +"\n//or impp is Closed .... " + impp.isClosed + "...stopping ...", debug);
+            //this.stop();
             return impp;
         }
     }
@@ -501,8 +517,17 @@ public class ImageStream extends Thread {
     }
 
     public void kill() {
+        this.timer.stop();
+        
+        
+        
         isDefunct = true;
         collecting = false;
+        this.processing =false;
+        
+        
+        Log.log("Killed " + this.getName(), debug);
+        
     }
 
     public ImagePlusPlus updateImpp() {

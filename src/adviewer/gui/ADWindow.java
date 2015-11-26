@@ -87,7 +87,7 @@ public class ADWindow extends ImageWindow implements WindowListener {
     public int guiBuildNumber = 1;
 
     public JCommander jcomm;
-    private Config config;
+    public Config config;
 
     /**
      * Constructor takes in the Window title and the command line args

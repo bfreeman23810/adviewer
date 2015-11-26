@@ -29,6 +29,12 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.codec.binary.Base64;
 
+/**
+ * adviewer.image.MJPGImageStream.java 
+ * This
+ * 
+ * @author bfreeman
+ */
 public class MJPGImageStream extends ImageStream implements Stream {
 
     public static final int CONNECT_STYLE_SOCKET = 1;
@@ -37,11 +43,10 @@ public class MJPGImageStream extends ImageStream implements Stream {
     public CameraConfig mycam;
     private String BC_UNAME = "alarms";
     private String BC_PW = "alarms1";
-    private int serverResponse;
     public int SLEEPTIME = 5;
 
     public MJPGImageStream(CameraConfig cam, boolean debug) {
-        super();
+        super(cam);
         this.mycam = cam;
         super.cam = cam;
         this.debug = debug;
@@ -86,6 +91,12 @@ public class MJPGImageStream extends ImageStream implements Stream {
         super.fireImageChange();
     }
 
+    @Override 
+    public void kill(){
+        super.kill();
+        
+    }
+    
     @Override
     public void run() {
         MJPEGStreamSplit ssplit;
@@ -309,12 +320,15 @@ public class MJPGImageStream extends ImageStream implements Stream {
             }
         } finally {
             unhook();
+            Log.log( "MJPEGStream has been disconnected ... " , debug);
         }
         //
         // At this point, the m_stream m_inputStream done
         // [could dispplay a that's all folks - leaving it as it m_inputStream
         //  will leave the last frame up]
         //
+        
+        
     }
 
     private void updateImage(String ctype, byte[] img) {

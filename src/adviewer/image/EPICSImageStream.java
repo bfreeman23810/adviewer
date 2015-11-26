@@ -78,7 +78,7 @@ public class EPICSImageStream extends ImageStream implements Stream {
     public int SLEEPTIME = 5;
 
     public EPICSImageStream(CameraConfig cam, boolean debug) {
-        super();
+        super(cam);
         super.debug = debug;
         super.cam = cam;
         super.processing = true;
@@ -124,12 +124,6 @@ public class EPICSImageStream extends ImageStream implements Stream {
         super.start();
     }
 
-    @Override
-    public void kill() {
-        super.stop();
-
-    }
-
     public void destroy() {
         try {
             this.closeEPICSCA();
@@ -141,23 +135,28 @@ public class EPICSImageStream extends ImageStream implements Stream {
     }
 
     @Override
+    public void kill() {
+        super.kill();
+        this.destroy();
+    }
+
+    @Override
     public void run() {
         // TODO Auto-generated method stub
 
         Log.log("In run ... ", super.debug);
 
-        while (super.processing && checkConnections() && cb.isNewImageAvailable) {
-            //Log.log("running ... " , super.debug)
-            getValuesFromEpics();
-
-
-            checkSizes();
-
-            //updateImpp();
-            //print("Running + >>>>> ");
-            //need to change img
-            //byte[] img = null;
-
+        while (super.processing && super.isConnected && cb.isNewImageAvailable) {
+            try {
+                //Log.log("running ... " , super.debug)
+                
+                getValuesFromEpics();   //get new values from EPICS
+                checkSizes();           //check to make sure sizes did not change
+            } catch (Exception e) {
+                Log.log(e.getMessage(), super.debug);
+                if(super.debug) e.printStackTrace();
+            }
+            
             try {
                 //img = epicsGetByteArray(ch_nx, x);
                 byte[] img = (byte[]) epicsGetByteArray(ch_image, imageSize);
@@ -176,24 +175,21 @@ public class EPICSImageStream extends ImageStream implements Stream {
 
             }
 
-            //String ctype;
-            //
-            // FPS counter.
-            //
-            //if (m_imgidx > IMG_FLUFF_FACTOR && m_startTime == 0) {
-            //m_startTime = System.currentTimeMillis();
-            //}
-            //
-            // Update the image [fores events off]
-            //
+           
             try {
+                //Log.log("Sleeping ... ", debug);
                 Thread.sleep(this.SLEEPTIME);
             } catch (Exception e) {
-                System.err.println("Error in putting thread to sleep .... ");
+                Log.log("Error in putting thread to sleep .... ", debug);
                 e.printStackTrace();
             }
 
         }
+        //super.processing && checkConnections() && cb.isNewImageAvailable
+        Log.log( " Processing = "+ super.processing  + 
+                  "\n// Connections =" + super.isConnected
+                +" \n// is new image available = " + cb.isNewImageAvailable, debug);
+        Log.log("EPICS Stream done ..... ", debug);
 
     }
 
@@ -270,7 +266,7 @@ public class EPICSImageStream extends ImageStream implements Stream {
     public void getValuesFromEpics() {
 
         try {
-            super.isConnected = checkConnections();
+            super.isConnected = checkConnections(); //set isConnected
             if (!super.isConnected) {
                 System.err.println("EPICS Channels are not connected...");
                 return;
@@ -347,13 +343,10 @@ public class EPICSImageStream extends ImageStream implements Stream {
             ctxt.flushIO();
 
             if (checkConnections()) {
-                if (debug) {
-                    System.out.println("Epics Channels are connected .... ");
-                }
-
-                if (debug) {
-                    System.out.println("Image Id = " + UniqueId);
-                }
+              
+               Log.log("Epics Channels are connected .... " , debug);
+                Log.log("Image Id = " + UniqueId , debug);
+                
 
                 if (UniqueId == 0) {
                     String message = "Something is wrong with the Image Counter. Check the Image Plugin EDM screen.";
@@ -361,26 +354,25 @@ public class EPICSImageStream extends ImageStream implements Stream {
                     JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
 
                     if (exitOnNoUpdate) {
-                        if (debug) {
-                            System.err.println("Exiting .... EPICSImageUpdater.... line 341 ... ");
-                        }
+                       
+                         Log.log("Exiting ... ",debug);
+                        
                         System.exit(1);
                     }
                 }
             } else {
-                if (debug) {
-                    System.out.println("Epics Channels are not connected ..." + notConnectedChannel);
-                }
+                Log.log("Epics Channels are not connected ..." + notConnectedChannel , debug);
+                
             }
         } catch (Exception ex) {
 
-            if (debug) {
-                System.err.println("Error in connecting PV...");
-                ex.printStackTrace();
-            }
+            
+                Log.log("Error in connecting PV..." , debug);
+                if(debug) ex.printStackTrace();
+            
             JOptionPane.showMessageDialog(null, "There was a problem with opening channel : " + PVPrefix, "Error", JOptionPane.ERROR_MESSAGE);
-            this.stop();
-            System.exit(1);
+            this.kill();
+            //System.exit(1);
             //checkConnections();
         }
     }
@@ -390,9 +382,9 @@ public class EPICSImageStream extends ImageStream implements Stream {
         try {
             for (Channel c : channels) {
                 if (c == null || !checkChannel(c)) {
-                    if (debug) {
-                        print(c.getName() + "...... line 396 in EPICSImageStreamer");
-                    }
+                    
+                    Log.log(c.getName() , debug );
+                    
                     return false;
                 }
             }
@@ -400,7 +392,7 @@ public class EPICSImageStream extends ImageStream implements Stream {
 
             // IJ.log("checkConnections: got exception= " + ex.getMessage());
             //if (isDebugFile) ex.printStackTrace(debugPrintStream);
-            ex.printStackTrace();
+            if(debug) ex.printStackTrace();
             return false;
         }
         //set the Unique Id
@@ -408,16 +400,16 @@ public class EPICSImageStream extends ImageStream implements Stream {
             UniqueId = epicsGetInt(ch_image_id);
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            if(debug) e.printStackTrace();
         }
         return true;
     }
 
     public void disconnectPVs() {
         try {
-            if (debug) {
-                print("disconnecting PVs ... ");
-            }
+            
+            Log.log("disconnecting PVs ... " , debug);
+            
             for (Channel c : channels) {
                 c.destroy();
             }
@@ -438,9 +430,8 @@ public class EPICSImageStream extends ImageStream implements Stream {
             ctxt = jca.createContext(JCALibrary.CHANNEL_ACCESS_JAVA);
             ctxt.initialize();
         } catch (Exception ex) {
-            if (debug) {
-                System.err.println("startEPICSCA exception: " + ex.getMessage());
-            }
+            Log.log("Error starting EPICS ...\n// " + ex.getMessage(),debug);
+            
             //logMessage("startEPICSCA exception: " + ex.getMessage(), true, true);
         }
 
@@ -461,21 +452,17 @@ public class EPICSImageStream extends ImageStream implements Stream {
             // send the request and wait for the channel to connect to the PV.
             ctxt.pendIO(3.0);
 
-            /*if (isDebugFile)
-             {
-             debugPrintStream.print("\n\n  Channel info****************************\n");
-             ch.printInfo(debugPrintStream);
-             }
-             */
-            if (debug) {
-                print("**************** Channel Info **************************************");
-                print("Host is " + ch.getHostName());
-                print("can read = " + ch.getReadAccess());
-                print("can write " + ch.getWriteAccess());
-                print("type " + ch.getFieldType());
-                print("name = " + ch.getName());
-                print("element count = " + ch.getElementCount());
-            }
+            
+            Log.log(
+                "**************** Channel Info **************************************"
+                +"\n//Host is " + ch.getHostName()
+                +"\n//can read = " + ch.getReadAccess()
+                +"\n//can write " + ch.getWriteAccess()
+                +"\n//type " + ch.getFieldType()
+                +"\n//name = " + ch.getName()
+                +"\n//element count = " + ch.getElementCount() 
+                    , debug
+            );
             return (ch);
 
         } catch (Exception e) {
@@ -491,14 +478,12 @@ public class EPICSImageStream extends ImageStream implements Stream {
 
         @Override
         public void monitorChanged(MonitorEvent ev) {
-            //if (isDebugMessages)
-            //  IJ.log("Monitor callback");
+            
             isNewImageAvailable = true;
             DBR_Int x = (DBR_Int) ev.getDBR();
             UniqueId = (x.getIntValue())[0];
             events++;
-            //Log.log("changed ", true);
-            // I'd like to just do the synchronized notify here, but how do I get "this"?
+           
             newUniqueId(ev);
         }
     }

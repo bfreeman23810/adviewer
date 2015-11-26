@@ -1016,15 +1016,26 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
                         //Log.log("Should be processing ... ", debug);
                     }
                     
-                    DecimalFormat format = new DecimalFormat("000.0000");
+                    DecimalFormat format = new DecimalFormat("  000.0000");
                     
-                    if(showFit ) writeToFitLabels( format.format( plot.min ), 
+                    
+                    if(showFit ){
+                        
+                        if(plot.min < 0){ plot.min=0.0; Log.log("set plot.min to zero", debug);}
+                        if(plot.max > 256){ plot.max = 256.0;Log.log("set plot.max to 256", debug);}
+                        
+                        if(plot.min > 256){ plot.min=256; Log.log("set plot.min to 256", debug);}
+                        if(plot.max < 0){ plot.max = 0;Log.log("set plot.max to 0", debug);}
+                        
+                        writeToFitLabels( format.format( plot.min ), 
                                                    format.format( plot.max ),
                                                    format.format( plot.centroid ),
                                                    format.format( plot.dev ),
                                                    format.format( 2*plot.dev),
                                                    format.format( plot.fwhm)
                                                    );
+                        
+                    }
                     
                     if(adMain != null){
                         if(adMain.unitsVal != null && srcImp!=null) adMain.unitsVal.setText(
