@@ -21,11 +21,25 @@ public class CameraConfig {
 	private String connectionType;
         private String pathToDefaultImage;
         private Image defaultImg;
- 	
+ 	private boolean debug = true;
+        
+        public static final String MJPG = "mjpg";
+        public static final String STATIC = "static";
+        public static final String EPICS = "epics";
+        public static final String RTSP = "rtsp";
+        
+        public static final String[] CONNECTIONS = {MJPG , STATIC, EPICS, RTSP }; 
+        
 	public CameraConfig(){
 		
 	}
 	
+        public CameraConfig( String id , String name ){
+		setId(id);
+		setName(name);
+		setConnectionType(STATIC);
+	}
+        
 	public CameraConfig( String id, String name , String pvPrefix ){
 		this.setId(id);
 		this.setName(name);
@@ -51,8 +65,9 @@ public class CameraConfig {
 			String connectionType){
 		this.setId(id);
 		this.setName(name);
+                this.setUrl(url);
 		this.setConnectionType(connectionType);
-		this.setUrl(url);
+		
 	}
 	
 	public String getName() {
@@ -101,16 +116,32 @@ public class CameraConfig {
 
 	public void setConnectionType(String connectionType) throws IllegalArgumentException{
 		
-		if(!connectionType.equals("mjpg") && !connectionType.equals("epics")&& !connectionType.equals("rtsp")){
-			System.err.println(":"+connectionType+": undefined check config file");
-			throw new IllegalArgumentException("Invalid Type in Camera Configuration");
-			
-		}
+            boolean found = false;
+            String types = "";
+            for(String s: CONNECTIONS){
+                types +=s+"\n";
+                if( connectionType.equals(s)){
+                    found = true;
+                    
+                }
+            }
+                if(found == false){
+                    Log.log("Unsupported camera connection type!"
+                            + "+\nSupported type are "
+                            + "\n"+types,debug);
+                    throw new IllegalArgumentException("Invalid Type in Camera Configuration");
+                }	
+            
 		if(connectionType.equals("epics") && pvPrefix==null){
-			System.err.println(":"+connectionType+": defined with no pv");
+			Log.log(":"+connectionType+": defined with no pv",debug);
 			throw new IllegalArgumentException("epics is defined with no pv, please see config file");
 		}
 		
+                if(connectionType.equals("mjpg") && url==null){
+			Log.log(":"+connectionType+": defined with no url" , debug);
+			throw new IllegalArgumentException("mjprg stream defined with no url");
+		}
+                
 		this.connectionType = connectionType;
 	}
 

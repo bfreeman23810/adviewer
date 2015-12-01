@@ -283,7 +283,6 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         title = BorderFactory.createTitledBorder("title");
 
-        
         try {
             if (guiBuildNumber == JUSTVIEWER) { //gui level 0, just build ImagePanel
                 return;
@@ -294,7 +293,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 if (imagePanel != null) {
                     southPanel = (Panel) createSouth();
                     if (imagePanel.streamer != null && imagePanel.streamer.isCEBAFBC) { //This is a site specific gui component
-                        
+
                         //Site specific component - if the ids are seen as certain channels it will build a south panel
                         if (isCEBAFBCandMakeMonitor(cam)) {
                             this.showSouth();
@@ -357,7 +356,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         JPanel p2 = new JPanel(new FlowLayout(5));
 
         Panel camPanel = (Panel) createCamDropDown(); //creates panel and defines some global vars
-        
+
         p1.add(camChooserLabel);    //defined in createCamDropDown()
         p1.add(camChooser);         //defined in createCamDropDown()
         p1.add(pixelInspector);
@@ -374,7 +373,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public Component createNorth() throws IOException {
         northPanel = new Panel(new BorderLayout());
 
-        northPanel.add(createStatusBar1(),BorderLayout.NORTH);
+        northPanel.add(createStatusBar1(), BorderLayout.NORTH);
         //northPanel.add(createCamDropDown() , BorderLayout.NORTH);
 
         return northPanel;
@@ -455,7 +454,6 @@ public class ADMainPanel extends JPanel implements ActionListener {
         tabs.add(createSavePanel(), "Save");
 
        // tabs.setSelectedIndex(2);
-
         eastPanel.add(tabs);
 
         return eastPanel;
@@ -523,7 +521,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         Panel panel = new Panel(new GridBagLayout());
         // panel.setPreferredSize(new Dimension(200 , 30) );
         GridBagLayout layout = new GridBagLayout();
-       // GridBagConstraints gc = new GridBagConstraints();
+        // GridBagConstraints gc = new GridBagConstraints();
 
         gc.weightx = 1.0;
         gc.weighty = 1.0;
@@ -1059,8 +1057,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
         JPanel p = new JPanel();
 
         p.add(createToolButton(pathToIcons + "black_rectangle_small.png", Toolbar.RECTANGLE, "Rectangle Tool"));
-        p.add(createToolButton(pathToIcons + "oval_black.png", "elliptical","Ellpise"));
-        p.add(createToolButton(pathToIcons + "polygon_small_2.png", Toolbar.FREEROI , "Free hand"));
+        p.add(createToolButton(pathToIcons + "oval_black.png", "elliptical", "Ellpise"));
+        p.add(createToolButton(pathToIcons + "polygon_small_2.png", Toolbar.FREEROI, "Free hand"));
 
         Log.log(pathToIcons, true);
 
@@ -1079,9 +1077,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel();
 
-        p.add(createToolButton(pathToIcons + "hand_small.png", Toolbar.HAND , "Hand tool"));
-        p.add(createToolButton(pathToIcons + "mag_small.png", Toolbar.MAGNIFIER , "<html>Left Mouse (in image) = ZoomIn,"+
-                " <br>Middle Mouse Click(in image) = ZoomOut</html>"));
+        p.add(createToolButton(pathToIcons + "hand_small.png", Toolbar.HAND, "Hand tool"));
+        p.add(createToolButton(pathToIcons + "mag_small.png", Toolbar.MAGNIFIER, "<html>Left Mouse (in image) = ZoomIn,"
+                + " <br>Middle Mouse Click(in image) = ZoomOut</html>"));
 
         title = BorderFactory.createTitledBorder("Magnify");
         p.setBorder(title);
@@ -1098,10 +1096,10 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel();
 
-        p.add(createToolButton(pathToIcons + "line_small.png", Toolbar.LINE , "Line tool"));
-        p.add(createToolButton(pathToIcons + "multiLine_small.png", Toolbar.POLYLINE , "Poly Line Tool"));
-        p.add(createToolButton(pathToIcons + "angle_small.png", Toolbar.ANGLE , "Angle Tool"));
-        p.add(createToolButton(pathToIcons + "polygon_small.png", Toolbar.FREELINE , "Free hand Line"));
+        p.add(createToolButton(pathToIcons + "line_small.png", Toolbar.LINE, "Line tool"));
+        p.add(createToolButton(pathToIcons + "multiLine_small.png", Toolbar.POLYLINE, "Poly Line Tool"));
+        p.add(createToolButton(pathToIcons + "angle_small.png", Toolbar.ANGLE, "Angle Tool"));
+        p.add(createToolButton(pathToIcons + "polygon_small.png", Toolbar.FREELINE, "Free hand Line"));
 
         title = BorderFactory.createTitledBorder("Line");
         p.setBorder(title);
@@ -1118,7 +1116,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         JPanel p = new JPanel();
 
         p.add(createToolButton(pathToIcons + "point_small.png", Toolbar.POINT, "Point tool"));
-        p.add(createToolButton(pathToIcons + "crosshair_small.png", Toolbar.CROSSHAIR , "Cross Hair Tool"));
+        p.add(createToolButton(pathToIcons + "crosshair_small.png", Toolbar.CROSSHAIR, "Cross Hair Tool"));
 
         title = BorderFactory.createTitledBorder("Point");
         p.setBorder(title);
@@ -1152,9 +1150,11 @@ public class ADMainPanel extends JPanel implements ActionListener {
         if (toolId == Toolbar.getToolId()) { //if the tool is equal to the default then set it to grren
             b.setBackground(Color.GREEN);
         }
-        
-        if(toolTip!=null) b.setToolTipText(toolTip);
-        
+
+        if (toolTip != null) {
+            b.setToolTipText(toolTip);
+        }
+
         //add to list of tools
         toolButtons.add(b);
         return b;
@@ -1183,7 +1183,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
         if (toolId.equals(IJ.getToolName())) {
             b.setBackground(Color.GREEN);
         }
-        if(toolTip!=null) b.setToolTipText(toolTip);
+        if (toolTip != null) {
+            b.setToolTipText(toolTip);
+        }
         //add to list of tools
         toolButtons.add(b);
         return b;
@@ -1337,11 +1339,11 @@ public class ADMainPanel extends JPanel implements ActionListener {
         final JButton b2 = new JButton();
         b2.setIcon(createImageIcon(pathToIcons + "pause_blue_small.png", "pause"));
         b2.setToolTipText("Pause Live");
-        
+
         final JButton b3 = new JButton();
         b3.setIcon(createImageIcon(pathToIcons + "black_cam_small.png", "snap"));
         b3.setToolTipText("<html>Snap Shot<br>Quick Keys = ctrl+g</html>");
-        
+
         //JButton b3 = new JButton();
         //b3.setIcon( createImageIcon(pathToIcons + "play_blue_small.png", "play") );
         b1.addActionListener(new ActionListener() {
@@ -1902,17 +1904,17 @@ public class ADMainPanel extends JPanel implements ActionListener {
         if (impp != null) {
             originalLut = impp.getProcessor().getLut();
         }
-    
-        String[] luts = new String[win.luts.map.size()+1];
+
+        String[] luts = new String[win.luts.map.size() + 1];
         luts[0] = "None";
-        int i =1;
+        int i = 1;
         for (String s : win.luts.getSortedKeys()) {
             luts[i] = s;
             i++;
         }
 
         final JComboBox<String> choiceBox = new JComboBox<String>(luts);
-   
+
         choiceBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent ie) {
@@ -1930,9 +1932,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 impp.getProcessor().setLut(originalLut);
-                
+
                 choiceBox.setSelectedItem("None");
-                
+
             }
         });
 
@@ -1947,6 +1949,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     }
 
+    public ImagePlusPlus savedImpp;
+    
     public Component createCamDropDown() {
         dropPanel = new Panel();
 
@@ -1956,11 +1960,16 @@ public class ADMainPanel extends JPanel implements ActionListener {
             return dropPanel;
         }
 
+        if (cam == null) {
+            cam = new CameraConfig("NONE", this.impp.getTitle());
+            cams.cameras.add(cam);
+            cams.map.put(cam.getId(), cam);
+        }
+
         camChooserLabel = makeReadback(cam.getName(), new Dimension(140, 20));
         p.add(camChooserLabel);
 
        // final Choice chooser = new Choice();
-
         String[] ids = new String[cams.map.size()];
         int i = 0;
 
@@ -1987,11 +1996,24 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 imagePanel.streamChanged = true; //change this boolean in imagePanel so it triggers a camera change 
 
                 camChooserLabel.setText(cam.getName()); //set the text of the label
-                impp.imageUpdater.cam = cam; //must change the cam object in ImagePlusPLus
+                if (impp.imageUpdater != null) {
+                    
+                    impp.imageUpdater.cam = cam;    //must change the cam object in ImagePlusPLus
+                    Log.log(impp.imageUpdater.cam.getName() + "=====" + imagePanel.streamer.cam.getName() + "============", win.debug); // make sure that these match
+                
+                } else {    //this was a STATIC image
+                
+                    savedImpp = impp;
+                    imagePanel.startStream(cam.getConnectionType());
+                    imagePanel.streamChanged = true;
+                    //imagePanel.changeStream();
 
-                Log.log(impp.imageUpdater.cam.getName() + "=====" + imagePanel.streamer.cam.getName() + "============", win.debug); // make sure that these match
+                    //impp.imageUpdater = imagePanel.streamer;
+                    imagePanel.timer.start();
+                }
 
                 //if not BC1, BC2, BC3, BC4, then removeSouthPanel, else Draw it.
+                //site specific panel
                 if (isCEBAFBCandMakeMonitor(cam)) {
                     showSouth();
                 } else {

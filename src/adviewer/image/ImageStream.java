@@ -204,8 +204,10 @@ public class ImageStream extends Thread {
                 numImageUpdates = 0;
                 updateCounter = 0;
 
-                if (impp != null) {
-                    impp.setFPSText(fpsFormatted);
+                if (impp != null && imagePanel!=null ) {
+                    if(imagePanel.mainPanel!=null && imagePanel.mainPanel.fps!=null){
+                        imagePanel.mainPanel.fps.setText(fpsFormatted);
+                    }
                 }
             }
         });

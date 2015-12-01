@@ -58,7 +58,7 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
     public ADMainPanel mainPanel;
     public boolean isImageAquired = false;
     public Timer timer;
-    public int TIME = 30;
+    public int TIME = 33;
     public static final String MJPG = "mjpg";
     public static final String EPICS = "epics";
     public boolean streamChanged = false;
@@ -81,17 +81,22 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
         // this.impp = null; //set impp to null
         Log.log("IMPP is still null .... ", win.debug);
 
-        //try to start the stream ...
+        //try to start th   e stream ...
         this.streamer = startStream(cam.getConnectionType()); //this should set streamer
         this.win.setImageStream(streamer);
 
         Log.log("Stream started ....", win.debug);
 
-        waitForFirstImage(); //block thread until image is aquired
+        if (!cam.getConnectionType().equals(CameraConfig.STATIC) && impp == null) {
+            waitForFirstImage();
+            Log.log("image was aquired ....", win.debug);
+        } else {
+            if (win.impp != null) {
+                this.impp = win.impp;
+            }
+            Log.log("impp alraedy defined ....", win.debug);
+        }//block thread until image is aquired
 
-        Log.log("image was aquired ....", win.debug);
-
-        timer = new Timer(this.TIME, this);
         init();
 
     }
@@ -113,12 +118,14 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
 
     public void init() {
         this.ij = IJ.getInstance();
+        timer = new Timer(this.TIME, this);
 
         //check to see if this a new canvas
         if (this.impp != null && this.streamer != null) {
 
             this.timer.start();
         }
+
         if (this.ic == null) {
             newCanvas = true;
             this.ic = new ImageCanvas(this.impp);
@@ -130,14 +137,14 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
         if (this.ic.getMagnification() != 0.0) {
             impp.setTitle(this.impp.getTitle());
         }
-        
+
         boolean changes = this.impp.changes;
-        
+
         setLayout(new ImageLayout(this.ic));
         add(this.ic);
         addFocusListener(this);
-        
-        addKeyListener(this.ij);
+
+        addKeyListener(this.ij);    //this is so imagej key listeners will work
         setFocusTraversalKeysEnabled(false);
 
     }
@@ -212,8 +219,8 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
     //get type from cam config and then start stream based on type
     public ImageStream startStream(String type) {
         try {
-            if(cam == null){
-                Log.log("Cam not set .... please set" , win.debug);
+            if (cam == null) {
+                Log.log("Cam not set .... please set", win.debug);
                 return null;
             }
             if (type.equals(MJPG)) {
@@ -234,12 +241,10 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
 
             }
         } catch (Exception e) {
-            Log.log("Problem executing stream ...\n", win.debug);
+            Log.log("Problem executing stream ...\n"
+                    + e.getMessage() + "\n"
+                    + e.getStackTrace(), win.debug);
 
-            if (win.debug) {
-                e.printStackTrace();
-            }
-            
             System.exit(1);
         }
 
@@ -275,33 +280,30 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
         this.img = streamer.getCurrent();
         this.imgBytes = streamer.getRawImage();
 
-    
     }
 
-
     public int counter = 0;
-    
+
     @Override
     public void actionPerformed(ActionEvent ae) {
 
-        try{
+        try {
             if (streamChanged) {
                 changeStream();
             }
-            
+
             if (!streamer.isAlive() && img != null && imgBytes != null) {
-                Log.log(streamer.getName()+"\n// .... Stream Alive = " + streamer.isAlive()
-                        +"\n//img = " + img
-                        +"\n//imgBytes = " + imgBytes
-                        +"counter = " + counter
-                        , win.debug);
-            
-                if(counter > 1000) System.exit(1);
+                Log.log(streamer.getName() + "\n// .... Stream Alive = " + streamer.isAlive()
+                        + "\n//img = " + img
+                        + "\n//imgBytes = " + imgBytes
+                        + "counter = " + counter, win.debug);
+
+                if (counter > 1000) {
+                    System.exit(1);
+                }
                 counter++;
                 return;
             }
-
-            
 
             if (this.impp != null && cam.getConnectionType().equals(MJPG) && !streamChanged && streamer.isAlive()) {
                 this.impp = streamer.updateImpp(this.impp, new ImagePlusPlus(cam.getName(), img));
@@ -311,14 +313,15 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
                 this.impp = streamer.updateImpp(this.impp, new ImagePlusPlus(cam.getName(), new ByteProcessor(streamer.imageWidth, streamer.imageHeight, streamer.getRawImage())));
                 doImageStuff();
 
-            } 
-        }
-        catch(Exception e){
+            }
+        } catch (Exception e) {
             Log.log(e.getMessage() + " , counter =  " + counter, win.debug);
             //if(win.debug) e.printStackTrace();
-            if(counter > 1000){ System.exit(1); };
+            if (counter > 1000) {
+                System.exit(1);
+            };
             counter++;
-          
+
         }
         /**
          * else { Log.log("timer is stopping .... ", win.debug); timer.stop();
@@ -332,64 +335,85 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
 
         //Log.log("Action preformed", win.debug);
         //this.streamer.setImageTitle();
-
         this.win.impp = this.impp;
         this.isImageAquired = false;
 
         streamer.numImageUpdates++;
-        
-        
-        //streamer.doFpsCalc();
 
+        //streamer.doFpsCalc();
         //this.impp.setFPSText(streamer.fpsFormatted);
     }
 
     public void changeStream() {
         try {
             //try to change data stream
- 
-            
-           // this.streamer.timer.stop();
-            if(this.streamer !=null) this.streamer.kill();
+            if (this.cam.getConnectionType().equals(CameraConfig.STATIC)) {
+                if (win.imagePath != null) {
+                    if (timer.isRunning()) {
+                        timer.stop(); // this stops the image stream ....
+                    }
+                    win.init(new ImagePlusPlus(win.imagePath));
+//                    this.impp = new ImagePlusPlus(win.imagePath);
+//                    mainPanel.impp = this.impp;
+                    if(streamer!=null) streamer.kill();
+                    this.streamer = null;
+                    this.impp = new ImagePlusPlus(win.imagePath);
+                    this.ic = ic;
+                    this.win = win;
+
+                    init();
+                    if (streamChanged) {
+                        streamChanged = false;
+                    }
+                    return;
+                }
+            }
+
+            // this.streamer.timer.stop();
+            if (this.streamer != null) {
+                this.streamer.kill();
+            }
+
             Thread.sleep(streamer.SLEEPTIME);//wait for thread sleep
-            
-            if(this.streamer.isAlive() ){
+
+            if (this.streamer.isAlive()) {
                 Log.log(this.streamer.getName() + " is still alive", win.debug);
-                
+
                 //if(!timer.isRunning()) this.timer.start();
-               
                 Thread.sleep(100);
                 this.streamer.kill();
-                
+
                 //if(this.streamer == null) ;
-                
                 //return;
-            }
-            else{ 
-                
-                counter=0;
-                
-                 if(timer.isRunning()) timer.stop(); // this stops the image stream .... 
-                
-                this.streamer = startStream( cam.getConnectionType() );
+            } else {
+
+                counter = 0;
+
+                if (timer.isRunning()) {
+                    timer.stop(); // this stops the image stream .... 
+                }
+                this.streamer = startStream(cam.getConnectionType());
                 this.win.setImageStream(streamer);
 
                 impp.imageUpdater = streamer; // sets immp streamer to new value
                 this.streamer.impp = this.impp; //sets the 
 
-                if(!timer.isRunning()) timer.start(); // restart image stream
-
+                if (!timer.isRunning()) {
+                    timer.start(); // restart image stream
+                }
                 Thread.sleep(TIME + 100);
                 //streamChanged = false; // always set back to false
                 //Log.log(" stream changed back to = " + streamChanged, win.debug);
-                if(streamChanged) streamChanged = false;
+                if (streamChanged) {
+                    streamChanged = false;
+                }
             }
-            
-            
+
         } catch (Exception e) {
-            Log.log("Problem with setting new stream" + e.getMessage(), win.debug);
+            Log.log("Problem with setting new stream\n"
+                    + e.getMessage(), win.debug);
             if (win.debug) {
-               // e.printStackTrace();
+                e.printStackTrace();
             }
         }
     }
