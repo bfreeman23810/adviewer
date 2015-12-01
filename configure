@@ -1,25 +1,34 @@
-#/bin/sh
+#!/bin/sh
+# Author: Brian Freeman
+# Purpose: Define confiurable paths in a config file
+# 
+# This script writes the absolute paths to the config file 
+# adviewer.config
+#
+# Date: December 1, 2015
+#######################################################################
 
-#get config path
+DIR="$(dirname "$(readlink -f "$0")")"
+#echo ${DIR}
 
-CONFIGDIR="$(pwd)/config"
+CONFIGDIR="${DIR}/config"
 CONFIGFILE="${CONFIGDIR}/adviewer.config"
 
-LUTDIR="$(pwd)/LUT"
-ICONPATH="$(pwd)/icons/"
-CLASSPATH="$(pwd)/bin"
+LUTDIR="${DIR}/LUT"
+ICONPATH="${DIR}/icons/"
+CLASSPATH="${DIR}/bin"
 CAMCONFIG="${CONFIGDIR}/cams.json"
 
 if [ -e ${CONFIGFILE} ]
 then
 
-		echo "CONFFIG = ${CONFIGFILE}"
-	
+                echo "CONFFIG = ${CONFIGFILE}"
+        
 else
 
-		echo "no such file ... creating"
-		cd ${CONFIGDIR}
-		touch ${CONFIGFILE}
+                echo "no such file ... creating"
+                cd ${CONFIGDIR}
+                touch ${CONFIGFILE}
 fi
 
 
@@ -27,7 +36,3 @@ echo "LUTPATH=${LUTDIR}" > ${CONFIGFILE}
 echo "ICONPATH=${ICONPATH}">> ${CONFIGFILE}
 echo "CAMCONFIG=${CAMCONFIG}">> ${CONFIGFILE}
 echo "CLASSPATH=${CLASSPATH}">> ${CONFIGFILE}
-
-
-
-
