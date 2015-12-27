@@ -93,13 +93,13 @@ public class SystemCommand {
             // using the Runtime exec method:
             Process p = Runtime.getRuntime().exec(command);
 
-            Scanner in = new Scanner(p.getInputStream());
+            //Scanner in = new Scanner(p.getInputStream());
 
-            while (in.hasNext()) {
+           // while (in.hasNext()) {
 
-                result += in.nextLine() + "\n";
+             //   result += in.nextLine() + "\n";
 
-            }
+            //}
 
         } catch (IOException e) {
 

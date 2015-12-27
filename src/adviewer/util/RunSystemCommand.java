@@ -87,7 +87,7 @@ public class RunSystemCommand implements Runnable {
     public void run() {
         Log.log("Thread Started @ " + SLEEPTIME + " update", debug);
         vc = new ViewerCollection(debug);//build list of viewers
-        vc.setLists();
+        vc.setLists();//build list of viewers here ..... 
 
         Viewer v = null;
         Viewer v2 = null;
@@ -102,7 +102,7 @@ public class RunSystemCommand implements Runnable {
                 
                 // String s = SystemCommand.exec("../fakeViewerSigma");
                 String s = vc.getInserted().trim();
-                Log.log(s, debug);
+                //Log.log(s, debug);
                 
                 if (!s.equals("") && s.length() > 0 && s.split(" ").length == 1) {
                     v = vc.viewers.get(s);

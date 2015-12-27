@@ -194,15 +194,19 @@ public class Helpers extends Tools {
     
     public static double[] getIntXAverageSeries(ImagePlus imp , boolean debug){
         
+            boolean hasRoi=true;
            int tool = Toolbar.getToolId();
-        if(tool == Toolbar.LINE || tool == Toolbar.POLYLINE || tool == Toolbar.FREELINE){
-            pp = new ProfilePlot(imp);
+           if(imp.getRoi() == null ){ Log.log("impp.getRoi is null", debug); imp.setRoi(new Rectangle(imp.getWidth(),imp.getHeight()));}
+        if( (tool == Toolbar.LINE || tool == Toolbar.POLYLINE || tool == Toolbar.FREELINE) && hasRoi){
+            
             Log.log("Selection is " + Toolbar.getToolName(), debug);
+            pp = new ProfilePlot(imp);
              if(pp.getProfile() !=null) return pp.getProfile();
          }
-        if(tool == Toolbar.RECTANGLE){
+        if(( tool == Toolbar.RECTANGLE) && hasRoi){
             pp = new ProfilePlot(imp);
             Log.log("Selection is " + Toolbar.getToolName() , debug);
+            pp = new ProfilePlot(imp);
              if(pp.getProfile() !=null) return pp.getProfile();
          }
         
@@ -227,15 +231,20 @@ public class Helpers extends Tools {
     
     public static double[] getIntYAverageSeries(ImagePlus imp , boolean debug){
        
-       int tool = Toolbar.getToolId();
-        if(tool == Toolbar.LINE || tool == Toolbar.POLYLINE || tool == Toolbar.FREELINE){
-            pp = new ProfilePlot(imp);
+        boolean hasRoi=true;
+           int tool = Toolbar.getToolId();
+           if(imp.getRoi() == null ){ Log.log("impp.getRoi is null", debug); imp.setRoi(new Rectangle(imp.getWidth(),imp.getHeight())); }
+        if((tool == Toolbar.LINE || tool == Toolbar.POLYLINE || tool == Toolbar.FREELINE) && hasRoi){
             Log.log("Selection is " + Toolbar.getToolName(), debug);
+            pp = new ProfilePlot(imp);
+            
              if(pp.getProfile() !=null) return pp.getProfile();
          }
-        if(tool == Toolbar.RECTANGLE){
-            pp = new ProfilePlot(imp , true);
+        
+        if(( tool == Toolbar.RECTANGLE) && hasRoi){
+            
             Log.log("Selection is " + Toolbar.getToolName() , debug);
+            pp = new ProfilePlot(imp , true);
              if(pp.getProfile() !=null) return pp.getProfile();
          }
         
@@ -258,6 +267,64 @@ public class Helpers extends Tools {
         return returnArr;
     }
     
+    /**
+     * returns a sum of the pixels in the horizontal plane
+     * @param imp
+     * @param debug
+     * @return 
+     */
+    public static double[] getIntXSeries(ImagePlus imp , boolean debug){
+        
+        double[] returnArr = new double[imp.getHeight()];
+        
+         int[][] pixVals = imp.getProcessor().getIntArray();
+        // pixVals = Helpers.transposeInt(pixVals);
+         
+         for (int i = 0 ; i < pixVals.length ; i++) {
+                    
+                    int sum = 0;
+                    
+                    for(int j = 0 ; j < pixVals[i].length ;j++){
+                        sum = sum+pixVals[i][j];
+                    }
+                   
+                    returnArr[i] = (double) (sum);
+
+                }
+        return returnArr;
+        
+        
+    }
+    
+    /**
+     * Returns a double array of the sum of the pixels in the vertical plane
+     * @param imp
+     * @param debug
+     * @return 
+     */
+     public static double[] getIntYSeries(ImagePlus imp , boolean debug){
+        
+        double[] returnArr = new double[imp.getHeight()];
+        
+         int[][] pixVals = imp.getProcessor().getIntArray();
+         pixVals = Helpers.transposeInt(pixVals);
+         
+         for (int i = 0 ; i < pixVals.length ; i++) {
+                    
+                    int sum = 0;
+                    
+                    for(int j = 0 ; j < pixVals[i].length ;j++){
+                        sum = sum+pixVals[i][j];
+                    }
+                   
+                    returnArr[i] = (double) (sum);
+
+                }
+        return returnArr;
+        
+        
+    }
+    
     public static Plot getPlot(ImagePlus imp, boolean isX, boolean debug) {
 		Roi roi = imp.getRoi();
 		//if (roi==null && !firstTime)
@@ -273,7 +340,7 @@ public class Helpers extends Tools {
 		return pp.getPlot();
 	}
     
-    public static PlotPlus getPlotPlus(ImagePlus imp, boolean isX, boolean showFit, boolean debug) {
+    public static PlotPlus getPlotPlus(ImagePlus imp, boolean isX, boolean showFit, boolean isAveraged, boolean debug) {
 		Roi roi = imp.getRoi();
 		//if (roi==null && !firstTime)
 		//	IJ.run(imp, "Restore Selection", "");
@@ -285,7 +352,7 @@ public class Helpers extends Tools {
 		}
 		
 		PlotProfilePlus pp = new PlotProfilePlus(imp, isX,showFit, debug);
-		return pp.getPlot();
+		return pp.getPlot(isAveraged);
 	}
     
     public static Plot getPlot2(ImagePlus imp, boolean isX, boolean debug) {
@@ -299,7 +366,7 @@ public class Helpers extends Tools {
 		return pp.getPlot();
 	}
     
-    public static PlotPlus getPlotPlus2(ImagePlus imp, boolean isX, boolean showFit, boolean debug) {
+    public static PlotPlus getPlotPlus2(ImagePlus imp, boolean isX, boolean showFit, boolean isAveraged, boolean debug) {
 		Roi roi = imp.getRoi();
 		if (roi==null || !(roi.isLine()||roi.getType()==Roi.RECTANGLE)) {
 			
@@ -307,6 +374,6 @@ public class Helpers extends Tools {
 		}
                 
 		PlotProfilePlus pp = new PlotProfilePlus(imp, isX, showFit,  debug);
-		return pp.getPlot();
+		return pp.getPlot(isAveraged);
 	}
 }

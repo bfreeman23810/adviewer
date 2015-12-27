@@ -20,6 +20,7 @@ import adviewer.util.CameraConfig;
 import adviewer.util.Helpers;
 import adviewer.util.Log;
 import adviewer.util.RunSystemCommand;
+import adviewer.util.SystemCommand;
 import com.charliemouse.cambozola.Viewer;
 import ij.IJ;
 import ij.ImagePlus;
@@ -33,8 +34,10 @@ import ij.gui.Toolbar;
 import ij.io.FileSaver;
 import ij.plugin.LutLoader;
 import ij.process.LUT;
+import java.awt.CheckboxMenuItem;
 import java.awt.Choice;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -51,8 +54,12 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -163,6 +170,14 @@ public class ADMainPanel extends JPanel implements ActionListener {
     private JComboBox<String> camChooser;
     private JLabel camChooserLabel;
 
+    public ImagePlusPlus savedImpp;
+    public JComboBox<String> lutChoiceBox;
+    public JButton playButton;
+    public JButton pauseButton;
+    public JButton saveBackGroundButton;
+    public JButton backGroundSubOnButton;
+    public JButton edgesButton;
+    
     /**
      * This version of the constructor takes in a Camera Object, window, and int
      *
@@ -292,13 +307,14 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 this.add(createNorth(), BorderLayout.NORTH);    //build north  panel
                 if (imagePanel != null) {
                     southPanel = (Panel) createSouth();
-                    if (imagePanel.streamer != null && imagePanel.streamer.isCEBAFBC) { //This is a site specific gui component
+                   
+                    //if (imagePanel.streamer != null && imagePanel.streamer.isCEBAFBC) { //This is a site specific gui component
 
                         //Site specific component - if the ids are seen as certain channels it will build a south panel
-                        if (isCEBAFBCandMakeMonitor(cam)) {
+                      //  if (isCEBAFBCandMakeMonitor(cam)) {
                             this.showSouth();
-                        }
-                    }
+                        //}
+                    //}
                 }
 
             }
@@ -452,6 +468,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         tabs.add(createToolsPanel(), "Tools");
         tabs.add(createPlotPanel(), "Plots");
         tabs.add(createSavePanel(), "Save");
+        tabs.add(new Panel(), "Info");
 
        // tabs.setSelectedIndex(2);
         eastPanel.add(tabs);
@@ -490,8 +507,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         boolean isY = false;
         boolean showFit = false;
+        boolean isAveraged = true;
 
-        xp = Helpers.getPlotPlus(impp, isY, showFit, win.debug);
+        xp = Helpers.getPlotPlus(impp, isY, showFit, isAveraged, win.debug);
         xpp = new PlotPanel(xp, impp, isY, win.debug);
         xpp.setMainPanel(this); //set a refernce to this panel in PlotPanel
 
@@ -507,8 +525,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         boolean isY = true;
         boolean showFit = false;
+         boolean isAveraged = true;
 
-        yp = Helpers.getPlotPlus(impp, isY, showFit, win.debug);
+        yp = Helpers.getPlotPlus(impp, isY, showFit, isAveraged, win.debug);
         ypp = new PlotPanel(yp, impp, isY, win.debug);
         ypp.setMainPanel(this); //set a refernce to this panel in PlotPanel
 
@@ -560,6 +579,20 @@ public class ADMainPanel extends JPanel implements ActionListener {
         return panel;
     }
 
+    
+    private  void open(URI uri) {
+    if (Desktop.isDesktopSupported()) {
+      try {
+        //Desktop.getDesktop().browse(uri);
+          SystemCommand.exec("firefox "+uri + " &");
+        Log.log("trying to open " + uri.toString() , win.debug);
+      } catch (Exception e) { 
+          Log.log("Error in open " + e.getMessage(), win.debug);
+          e.printStackTrace();
+      }
+    } else { Log.log("Unsupported desktop " , win.debug); }
+  }
+    
     public Component createTestButton() {
         Panel panel = new Panel();
 
@@ -569,18 +602,24 @@ public class ADMainPanel extends JPanel implements ActionListener {
         b.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                //toggleXPlotPanel();
-                //Roi roi = new Roi(70, 70, 120, 120);
-                // Line line = new Line(impp.getWidth() / 2, impp.getHeight() - 1, impp.getWidth() / 2, 0);
-                // TextRoi text = new TextRoi(20, 20, "test");
-                //impp.setRoi(text);
-                //impp.saveRoi();
-                //impp.setRoi(roi);
-                //Overlay ov = new Overlay(roi);
-                //impp.setOverlay(ov);
-                //impp.updateAndRepaintWindow();
-                //imagePanel.ic.;
-                win.pack();
+                try {
+                    //toggleXPlotPanel();
+                    //Roi roi = new Roi(70, 70, 120, 120);
+                    // Line line = new Line(impp.getWidth() / 2, impp.getHeight() - 1, impp.getWidth() / 2, 0);
+                    // TextRoi text = new TextRoi(20, 20, "test");
+                    //impp.setRoi(text);
+                    //impp.saveRoi();
+                    //impp.setRoi(roi);
+                    //Overlay ov = new Overlay(roi);
+                    //impp.setOverlay(ov);
+                    //impp.updateAndRepaintWindow();
+                    //imagePanel.ic.;
+                   // win.pack();
+                    URI uri = new URI("https://github.com/bfreeman23810/adviewer/wiki/GUI-Help");
+                    open(uri);
+                } catch (URISyntaxException ex) {
+                   Log.log("Error in open .... " + ex.getMessage() , win.debug);
+                }
             }
         });
 
@@ -749,6 +788,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         title = BorderFactory.createTitledBorder("Units");
         p.setBorder(title);
         panel.add(p);
+       // panel.add(createTurnOffAverage()); //come back to this.... errors on ROI selection and profiles incoorect
         return panel;
     }
 
@@ -1000,11 +1040,11 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         p.add(createZoomTools(), gc);
 
-//        gc.gridx = 0;
-//        gc.gridy = 2;
-//        gc.anchor = GridBagConstraints.WEST;
-//
-//        p.add(createTestButton(), gc);
+        gc.gridx = 0;
+        gc.gridy = 2;
+        gc.anchor = GridBagConstraints.WEST;
+
+        p.add(createTestButton(), gc);
 //
 //        gc.gridx = 0;
 //        gc.gridy = 3;
@@ -1130,6 +1170,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public JButton createToolButton(String iconPath, final int toolId, String toolTip) {
 
         final JButton b = new JButton();
+        b.setName(toolId+"");
         b.setIcon(createImageIcon(iconPath, "tool = " + toolId));
         b.setPreferredSize(new Dimension(25, 25));
         b.addActionListener(new ActionListener() {
@@ -1142,6 +1183,23 @@ public class ADMainPanel extends JPanel implements ActionListener {
                         continue;
                     } else {
                         but.setBackground(null);
+                    }
+                }
+                
+                //sync the context menu
+                if(impp!=null){
+                    if(impp.mainmenu.cmenuToolItems!=null){
+                        for(CheckboxMenuItem cmi : impp.mainmenu.cmenuToolItems){
+                            
+                            if(cmi.getName().equals(b.getName())){
+                                cmi.setState(true);
+                      
+                            }
+                            else{
+                                cmi.setState(false);
+                            }
+                            
+                        }
                     }
                 }
             }
@@ -1164,6 +1222,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public JButton createToolButton(String iconPath, final String toolId, String toolTip) {
 
         final JButton b = new JButton();
+        b.setName(toolId);
         b.setIcon(createImageIcon(iconPath, toolId));
         b.setPreferredSize(new Dimension(25, 25));
         b.addActionListener(new ActionListener() {
@@ -1176,6 +1235,23 @@ public class ADMainPanel extends JPanel implements ActionListener {
                         continue;
                     } else {
                         but.setBackground(null);
+                    }
+                }
+                
+                //sync the context menu
+                if(impp!=null){
+                    if(impp.mainmenu.cmenuToolItems!=null){
+                        for(CheckboxMenuItem cmi : impp.mainmenu.cmenuToolItems){
+                            
+                            if(cmi.getName().equals(b.getName())){
+                                cmi.setState(true);
+                               
+                            }
+                            else{
+                                cmi.setState(false);
+                            }
+                            
+                        }
                     }
                 }
             }
@@ -1234,7 +1310,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         this.add(southPanel, BorderLayout.SOUTH);
         isSouthShowing = true;
-        this.win.pack();
+        //this.win.pack();
     }
 
     public void toggleSouthPanel() {
@@ -1328,17 +1404,18 @@ public class ADMainPanel extends JPanel implements ActionListener {
         JPanel p = new JPanel(new FlowLayout(1));
         final Dimension d = new Dimension(28, 25);
 
-        final JButton b1 = new JButton();
-        b1.setIcon(createImageIcon(pathToIcons + "play_blue_small.png", "play"));
+        playButton = new JButton();
+        playButton.setIcon(createImageIcon(pathToIcons + "play_blue_small.png", "play"));
         if (imagePanel != null) {
             if (imagePanel.timer != null && imagePanel.timer.isRunning()) {
-                b1.setBackground(Color.GREEN);
+                playButton.setBackground(Color.GREEN);
             }
         }
-        b1.setToolTipText("Play Live");
-        final JButton b2 = new JButton();
-        b2.setIcon(createImageIcon(pathToIcons + "pause_blue_small.png", "pause"));
-        b2.setToolTipText("Pause Live");
+        playButton.setToolTipText("Play Live");
+        
+        pauseButton = new JButton();
+        pauseButton.setIcon(createImageIcon(pathToIcons + "pause_blue_small.png", "pause"));
+        pauseButton.setToolTipText("Pause Live");
 
         final JButton b3 = new JButton();
         b3.setIcon(createImageIcon(pathToIcons + "black_cam_small.png", "snap"));
@@ -1346,29 +1423,39 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         //JButton b3 = new JButton();
         //b3.setIcon( createImageIcon(pathToIcons + "play_blue_small.png", "play") );
-        b1.addActionListener(new ActionListener() {
+        playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 if (imagePanel != null) {
                     if (!imagePanel.timer.isRunning()) {
                         imagePanel.timer.start();
                     }
-                    b1.setBackground(Color.GREEN);
-                    b2.setBackground(null);
+                    playButton.setBackground(Color.GREEN);
+                    pauseButton.setBackground(null);
+                    
+                    if(impp.mainmenu!=null){
+                        impp.mainmenu.start.setEnabled(false);
+                        impp.mainmenu.stop.setEnabled(true);
+                    }
 
                 }
             }
         });
 
-        b2.addActionListener(new ActionListener() {
+        pauseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 if (imagePanel != null) {
                     if (imagePanel.timer.isRunning()) {
                         imagePanel.timer.stop();
                     }
-                    b1.setBackground(null);
-                    b2.setBackground(Color.GREEN);
+                    playButton.setBackground(null);
+                    pauseButton.setBackground(Color.GREEN);
+                    
+                    if(impp.mainmenu!=null){
+                        impp.mainmenu.start.setEnabled(true);
+                        impp.mainmenu.stop.setEnabled(false);
+                    }
                 }
             }
         });
@@ -1384,12 +1471,12 @@ public class ADMainPanel extends JPanel implements ActionListener {
             }
         });
 
-        b1.setPreferredSize(d);
-        b2.setPreferredSize(d);
+        playButton.setPreferredSize(d);
+        pauseButton.setPreferredSize(d);
         b3.setPreferredSize(d);
 
-        p.add(b1);
-        p.add(b2);
+        p.add(playButton);
+        p.add(pauseButton);
         p.add(b3);
         // p.add(b3);
         title = BorderFactory.createTitledBorder("Controls");
@@ -1404,35 +1491,46 @@ public class ADMainPanel extends JPanel implements ActionListener {
         // panel.setPreferredSize(new Dimension(200 , 30) );
         JPanel p = new JPanel(new FlowLayout(2));
 
-        final JButton b1 = new JButton("Save");
+        saveBackGroundButton = new JButton("Save");
 
-        final JButton b2 = new JButton("On");
+        backGroundSubOnButton = new JButton("On");
 
         final JButton b3 = new JButton("Reset");
 
-        b1.addActionListener(new ActionListener() {
+        saveBackGroundButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 if (impp.imageUpdater != null) {
                     impp.imageUpdater.saveBackground();
-                    b1.setBackground(Color.yellow);
-                    b1.setText("Saved");
+                    saveBackGroundButton.setBackground(Color.yellow);
+                    saveBackGroundButton.setText("Saved");
                 }
             }
         });
 
-        b2.addActionListener(new ActionListener() {
+        backGroundSubOnButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 if (impp.imageUpdater != null) {
                     if (impp.imageUpdater.isSubtraction) {
                         impp.imageUpdater.isSubtraction = false;
-                        b2.setBackground(null);
+                        backGroundSubOnButton.setBackground(null);
+                        if(impp.mainmenu!=null ){
+                            if(impp.mainmenu.subtractionOn!=null){
+                                impp.mainmenu.subtractionOn.setState(false);
+                            }
+                        }
+                        
                         //b2.setText("Off");
                     } else {
                         impp.imageUpdater.isSubtraction = true;
-                        b2.setBackground(Color.GREEN);
+                        backGroundSubOnButton.setBackground(Color.GREEN);
                         //b2.setText("On");
+                        if(impp.mainmenu!=null ){
+                            if(impp.mainmenu.subtractionOn!=null){
+                                impp.mainmenu.subtractionOn.setState(true);
+                            }
+                        }
                     }
 
                 }
@@ -1446,18 +1544,18 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 if (impp.imageUpdater != null) {
 
                     impp.imageUpdater.pixelBytes = null;
-                    b1.setBackground(null);
-                    b2.setSelected(false);
+                    saveBackGroundButton.setBackground(null);
+                    backGroundSubOnButton.setSelected(false);
                     impp.imageUpdater.isSubtraction = false;
-                    b2.setBackground(null);
-                    b1.setText("Save");
+                    backGroundSubOnButton.setBackground(null);
+                    saveBackGroundButton.setText("Save");
                     // b2.setText("Off");
                 }
             }
         });
 
-        p.add(b1);
-        p.add(b2);
+        p.add(saveBackGroundButton);
+        p.add(backGroundSubOnButton);
         p.add(b3);
 
         title = BorderFactory.createTitledBorder("Background Subtraction");
@@ -1475,26 +1573,32 @@ public class ADMainPanel extends JPanel implements ActionListener {
         // panel.setPreferredSize(new Dimension(200 , 30) );
         JPanel p = new JPanel(new FlowLayout(2));
 
-        final JButton b1 = new JButton("Off");
+        edgesButton = new JButton("Off");
 
-        b1.addActionListener(new ActionListener() {
+        edgesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 if (impp != null) {
                     if (impp.findedges) {
                         impp.findedges = false;
-                        b1.setBackground(null);
-                        b1.setText("Off");
+                        edgesButton.setBackground(null);
+                        edgesButton.setText("Off");
+                        if(impp.mainmenu!=null){
+                            impp.mainmenu.findEdges.setState(false);
+                        }
                         if (impp.imageUpdater == null) {
                             //impp.resetPixels();
                             Log.log("reset ", win.debug);
                         }
                     } else {
                         impp.findedges = true;
-                        b1.setBackground(Color.GREEN);
-                        b1.setText("On");
+                        edgesButton.setBackground(Color.GREEN);
+                        edgesButton.setText("On");
                         if (impp.imageUpdater == null) {
                             IJ.runPlugIn(impp, "ij.plugin.filter.Filters", "edge");
+                        }
+                        if(impp.mainmenu!=null){
+                            impp.mainmenu.findEdges.setState(true);
                         }
                     }
 
@@ -1503,7 +1607,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
             }
         });
 
-        p.add(b1);
+        p.add(edgesButton);
 
         title = BorderFactory.createTitledBorder("Edges...");
         p.setBorder(title);
@@ -1553,10 +1657,10 @@ public class ADMainPanel extends JPanel implements ActionListener {
         savePath = "";
         fileName = "";
 
-        final JTextField text = new JTextField(15);
+        final JTextField text = makeSetpoint(15);
         //text.setText(savePath);
         JLabel label = new JLabel("Save Path: ");
-        final JTextField text2 = new JTextField(15);
+        final JTextField text2 = makeSetpoint(15);
         JLabel label2 = new JLabel("File Name: ");
         JButton b1 = new JButton("Browse");
         JLabel label3 = new JLabel("Is sequence : ");
@@ -1744,13 +1848,41 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 }
             }
         });
+        
+        b7.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                //impp.copy();
+                //saver = new FileSaver( ImagePlus.getClipboard() );
+                if (savePath == null || savePath.equals("")) {
+                    Helpers.saveAsDat(impp, null, true, win.debug);
+                } else {
+                    Helpers.saveAsDat(impp, getFullSavePath() + ".dat", true, win.debug);
+                }
+            }
+        });
+        b8.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                //impp.copy();
+                //saver = new FileSaver( ImagePlus.getClipboard() );
+                if (savePath == null || savePath.equals("")) {
+                    Helpers.saveAsDat(impp, null, false, win.debug);
+                } else {
+                    Helpers.saveAsDat(impp, getFullSavePath() + ".dat", false, win.debug);
+                }
+            }
+        });
 
         p1.add(b1);
         p1.add(b2);
         p1.add(b3);
+        p1.add(b7);
         p2.add(b4);
         p2.add(b5);
         p2.add(b6);
+        p2.add(b8);
+        
         p.add(p1);
         p.add(p2);
         title = BorderFactory.createTitledBorder("Save Image As");
@@ -1862,7 +1994,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 if (savePath == null || savePath.equals("")) {
                     Helpers.saveRoiAsDat(impp, null, true, win.debug);
                 } else {
-                    Helpers.saveAsDat(impp, getFullSavePath() + ".dat", true, win.debug);
+                    Helpers.saveRoiAsDat(impp, getFullSavePath() + ".dat", true, win.debug);
                 }
             }
         });
@@ -1874,7 +2006,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 if (savePath == null || savePath.equals("")) {
                     Helpers.saveRoiAsDat(impp, null, false, win.debug);
                 } else {
-                    Helpers.saveAsDat(impp, getFullSavePath() + ".dat", false, win.debug);
+                    Helpers.saveRoiAsDat(impp, getFullSavePath() + ".dat", false, win.debug);
                 }
             }
         });
@@ -1896,10 +2028,48 @@ public class ADMainPanel extends JPanel implements ActionListener {
         return panel;
     }
 
+    
+     public Component createTurnOffAverage(){
+        JPanel p = new JPanel(new FlowLayout(2));
+        
+        final JCheckBox box = new JCheckBox();
+        
+        JLabel label = new JLabel("Averaging Off :");
+        
+        box.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent ie) {
+           
+                if(box.isSelected()) {
+                    
+                    if(xpp!=null) xpp.isAveraged = false;
+                    if(ypp!=null) ypp.isAveraged = false;
+                    
+                } 
+                else{
+                    if(xpp!=null) xpp.isAveraged = true;
+                    if(ypp!=null) ypp.isAveraged = true;
+                }
+                
+               if(xpp!=null) { xpp.imageUpdated(impp);}
+               if(ypp!=null) { ypp.imageUpdated(impp);}
+            
+            }
+        });
+        
+        title = BorderFactory.createTitledBorder("AverageOff");
+        p.setBorder(title);
+        
+        p.add(label);
+        p.add(box);
+        
+        return p;
+        
+    }
+    
     public Component createLutDropDownPanel() {
 
-        Panel panel = new Panel();
-        // panel.setPreferredSize(new Dimension(200 , 30) );
         JPanel p = new JPanel(new FlowLayout(2));
         if (impp != null) {
             originalLut = impp.getProcessor().getLut();
@@ -1913,16 +2083,36 @@ public class ADMainPanel extends JPanel implements ActionListener {
             i++;
         }
 
-        final JComboBox<String> choiceBox = new JComboBox<String>(luts);
+        lutChoiceBox = new JComboBox<String>(luts);
 
-        choiceBox.addItemListener(new ItemListener() {
+        lutChoiceBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent ie) {
 
-                if (choiceBox.getSelectedItem().equals("None")) {
+                if (lutChoiceBox.getSelectedItem().equals("None")) {
                     impp.getProcessor().setLut(originalLut);
+                    //sync popup menu
+                    for(CheckboxMenuItem cmi : impp.mainmenu.cmenuLutItems){
+                           if(cmi.getLabel().equals("Reset LUT")){
+                               cmi.setState(true);
+                           }
+                           else{
+                               cmi.setState(false);
+                           }
+                     }
+                          
                 } else {
-                    changeLUT(win.luts.map.get(choiceBox.getSelectedItem()));
+                    changeLUT(win.luts.map.get(lutChoiceBox.getSelectedItem()));
+                    
+                    //for syncing popmenu
+                     for(CheckboxMenuItem cmi : impp.mainmenu.cmenuLutItems){
+                        if(cmi.getLabel().equals(lutChoiceBox.getSelectedItem())){
+                            cmi.setState(true);
+                        }
+                        else{
+                            cmi.setState(false);
+                        }
+                    }
                 }
             }
         });
@@ -1933,7 +2123,17 @@ public class ADMainPanel extends JPanel implements ActionListener {
             public void actionPerformed(ActionEvent ae) {
                 impp.getProcessor().setLut(originalLut);
 
-                choiceBox.setSelectedItem("None");
+                lutChoiceBox.setSelectedItem("None");
+                
+                //sync popup menu
+                for(CheckboxMenuItem cmi : impp.mainmenu.cmenuLutItems){
+                    if(cmi.getLabel().equals("Reset LUT")){
+                        cmi.setState(true);
+                    }
+                    else{
+                        cmi.setState(false);
+                    }
+                }
 
             }
         });
@@ -1941,15 +2141,14 @@ public class ADMainPanel extends JPanel implements ActionListener {
         title = BorderFactory.createTitledBorder("Look Up Tables (LUT)");
         p.setBorder(title);
 
-        p.add(choiceBox);
+        p.add(lutChoiceBox);
         p.add(resetLut);
-        panel.setFocusable(false);
-        panel.add(p);
-        return panel;
+        p.setFocusable(false);  
+        return p;
 
     }
 
-    public ImagePlusPlus savedImpp;
+    
     
     public Component createCamDropDown() {
         dropPanel = new Panel();
@@ -2132,38 +2331,47 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     public Component createMessageLabel() {
 
-        final Panel panel = new Panel(new BorderLayout(2, 2));
-        Dimension d2 = new Dimension((300), 27);
+        final Panel panel = new Panel(new BorderLayout(2,2)) ;      
+        Dimension d2 = new Dimension(35, 27);
 
         final String defaultString = "Check to get Inserted Viewer";
-        messageLabel = new JLabel(defaultString);
-        messageLabel.setPreferredSize(d2);
-        messageLabel.setAlignmentX(CENTER_ALIGNMENT);
-        messageLabel.setAlignmentY(CENTER_ALIGNMENT);
+        messageLabel = makeReadback(defaultString,null);
+       // messageLabel.setPreferredSize(d2);
+       // messageLabel.setAlignmentX(CENTER_ALIGNMENT);
+        //messageLabel.setAlignmentY(CENTER_ALIGNMENT);
         //messageLabel.setBorder(blackline);
-        messageLabel.setForeground(Color.WHITE);
+        //messageLabel.setForeground(Color.WHITE);
 
         final JCheckBox getViewerSigmas = new JCheckBox();
 
         final Panel labels = new Panel(new GridLayout(6, 2));
 
-        final JLabel label1 = new JLabel("Viewer:");
-        final JLabel label2 = new JLabel("SigmaX:");
-        final JLabel label3 = new JLabel("SigmaY:");
-        final JLabel label4 = new JLabel("Aspect Ratio:");
-        final JLabel label5 = new JLabel("ITVXXXX");
-        final JLabel label6 = new JLabel("1.023");
-        final JLabel label7 = new JLabel("2.345");
-        final JLabel label8 = new JLabel("1:1.2");
+        //final JLabel label1 = new JLabel("Viewer:");
+        final JLabel label1 = makeReadback("Viewer:",d2);
+        //final JLabel label2 = new JLabel("SigmaX:");
+        final JLabel label2 = makeReadback("SigmaX:" , d2);
+        
+        //final JLabel label3 = new JLabel("SigmaY:");
+        final JLabel label3 =  makeReadback("SigmaY:",d2);
+        //final JLabel label4 = new JLabel("Aspect Ratio:");
+        final JLabel label4 =  makeReadback("Aspect Ratio:" , d2);
+        //final JLabel label5 = new JLabel("ITVXXXX");
+        final JLabel label5 =  makeReadback("ITVXXXX" , d2);
+        //final JLabel label6 = new JLabel("1.023");
+        final JLabel label6 =  makeReadback("1.023",d2);
+        //final JLabel label7 = new JLabel("2.345");
+        final JLabel label7 =  makeReadback("2.345",d2);
+        //final JLabel label8 = new JLabel("1:1.2");
+        final JLabel label8 =  makeReadback("1:1.2",d2);
 
-        label1.setForeground(Color.WHITE);
-        label2.setForeground(Color.WHITE);
-        label3.setForeground(Color.WHITE);
-        label4.setForeground(Color.WHITE);
-        label5.setForeground(Color.WHITE);
-        label6.setForeground(Color.WHITE);
-        label7.setForeground(Color.WHITE);
-        label8.setForeground(Color.WHITE);
+//        label1.setForeground(Color.WHITE);
+//        label2.setForeground(Color.WHITE);
+//        label3.setForeground(Color.WHITE);
+//        label4.setForeground(Color.WHITE);
+//        label5.setForeground(Color.WHITE);
+//        label6.setForeground(Color.WHITE);
+//        label7.setForeground(Color.WHITE);
+//        label8.setForeground(Color.WHITE);
 
         labels.add(label1);
         labels.add(label5);
@@ -2174,6 +2382,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         labels.add(label4);
         labels.add(label8);
 
+        //run to get get viewer names
         final RunSystemCommand run = new RunSystemCommand(win.debug, 50);
         run.setLabels(labels, label5, label6, label7, label8);
         run.messageLabel = messageLabel;
@@ -2184,7 +2393,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
                 if (getViewerSigmas.isSelected()) {
                     run.run = true;
-                    new Thread(run).start();
+                    //new Thread(run).start(); //start the thread
                     panel.add(labels, BorderLayout.SOUTH);
                     messageLabel.setText("Building viewer list.... takes ~1 min ");
 
@@ -2194,13 +2403,14 @@ public class ADMainPanel extends JPanel implements ActionListener {
                     panel.remove(labels);
 
                 }
+               
                 panel.repaint();
                 win.pack();
 
             }
         });
 
-        panel.setBackground(Color.BLUE);
+        //panel.setBackground(Color.BLUE);
 
         panel.add(messageLabel, BorderLayout.WEST);
         panel.add(getViewerSigmas, BorderLayout.EAST);
@@ -2263,6 +2473,16 @@ public class ADMainPanel extends JPanel implements ActionListener {
         }
 
         return label;
+
+    }
+    
+     public JTextField makeSetpoint( int l ) {
+
+        JTextField set = new JTextField(l);
+        set.setOpaque(true);
+        set.setBackground(Color.CYAN);
+
+        return set;
 
     }
 

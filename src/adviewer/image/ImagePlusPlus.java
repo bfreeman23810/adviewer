@@ -62,7 +62,7 @@ public class ImagePlusPlus extends ImagePlus {
 
     //Menu used to create the right click context menu
     PopupMenu popup;
-    Menus mainmenu;
+    public Menus mainmenu;
 
     public Dimension d;
 
@@ -211,8 +211,9 @@ public class ImagePlusPlus extends ImagePlus {
 
         //references to this images containers
         this.myCanvas = this.getCanvas();
-        this.myWindow = this.getWindow();
+        this.myWindow = (ADWindow) this.getWindow();
 
+        
         if(luts !=null) mainmenu = new Menus(this, luts);
        // else mainmenu = new Menus(this);
         

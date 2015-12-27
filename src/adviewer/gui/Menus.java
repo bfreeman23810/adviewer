@@ -39,6 +39,8 @@ import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
 import ij.plugin.filter.ImageMath;
 import java.awt.AWTEvent;
+import java.awt.Color;
+import javax.swing.JButton;
 
 /**
  * Set of Static methods to return Menus
@@ -60,7 +62,8 @@ public class Menus {
     public MenuItem captureOn;
     public MenuItem captureOff;
 
-    public ArrayList<CheckboxMenuItem> cmenuItems;
+    public ArrayList<CheckboxMenuItem> cmenuToolItems;
+    public ArrayList<CheckboxMenuItem> cmenuLutItems;
     public ArrayList<CheckboxMenuItem> fpsChecks;
 
     public IndexColorModel cm;
@@ -74,22 +77,24 @@ public class Menus {
     public ImageJ ij;
 
     public boolean debug = true;
+    public CheckboxMenuItem findEdges;
+    public CheckboxMenuItem subtractionOn;
 
     public Menus() {
         init();
     }
 
-    public Menus(ImagePlusPlus impp , LUTCollection luts) {
+    public Menus(ImagePlusPlus impp, LUTCollection luts) {
         //Log.log("Here in menus ................... " , debug);
         this.impp = impp;
         this.lc = luts;
         init();
     }
-    
+
     public Menus(ImagePlusPlus impp) {
         //Log.log("Here in menus ................... " , debug);
         this.impp = impp;
-        
+
         init();
     }
 
@@ -114,9 +119,8 @@ public class Menus {
                     lc = this.win.luts;
                     this.debug = this.win.debug;
                     //Log.log("ADWindow luts were found .... " , debug);
-                } 
-                else{
-                        Log.log("Check lut collection in ADWWindow" ,debug);
+                } else {
+                    Log.log("Check lut collection in ADWWindow, win = " + this.win, debug);
                 }
             } catch (Exception e) {
                 Log.log("Problem with setting the LUT", debug);
@@ -469,6 +473,13 @@ public class Menus {
                     start.setEnabled(false);
                 }
 
+                //sync panel if it exists
+                if (impp != null) {
+                    if (impp.imagePanel.mainPanel.playButton != null) {
+                        impp.imagePanel.mainPanel.playButton.doClick();
+                    }
+                }
+
             }
         });
 
@@ -480,8 +491,15 @@ public class Menus {
                     impp.imageUpdater.getImagePanel().timer.stop();
 
                     stop.setEnabled(false);
-                    snap.setEnabled(false);
+                    snap.setEnabled(true);
                     start.setEnabled(true);
+                }
+
+                //sync panel if it exists
+                if (impp != null) {
+                    if (impp.imagePanel.mainPanel.pauseButton != null) {
+                        impp.imagePanel.mainPanel.pauseButton.doClick();
+                    }
                 }
             }
         });
@@ -527,10 +545,9 @@ public class Menus {
             }
         });
 
-        capture.add(captureOn);
-        capture.add(captureOff);
-
-        menu.add(capture);
+        //capture.add(captureOn);
+        //capture.add(captureOff);
+        //menu.add(capture);
         menu.add(start);
         menu.add(stop);
         menu.add(snap);
@@ -667,21 +684,38 @@ public class Menus {
                 if (imageUpdater != null) {
                     imageUpdater.saveBackground();
                 }
+                
+                if(impp!=null){
+                    if(impp.imagePanel.mainPanel.saveBackGroundButton!=null){
+                        impp.imagePanel.mainPanel.saveBackGroundButton.doClick();
+                    }
+                }
             }
         });
 
         menu.add(save);
 
-        CheckboxMenuItem subtractionOn = new CheckboxMenuItem("Subtraction On ... ");
+        subtractionOn = new CheckboxMenuItem("Subtraction On ... ");
         subtractionOn.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     if (imageUpdater != null) {
                         imageUpdater.isSubtraction = true;
                     }
+                    
+                    if(impp!=null){
+                        if(impp.imagePanel.mainPanel.backGroundSubOnButton!=null){
+                            impp.imagePanel.mainPanel.backGroundSubOnButton.setBackground(Color.GREEN);
+                        }
+                    }
                 } else {
-                    if (imageUpdater != null) {
+                    if (imageUpdater != null) {     
                         imageUpdater.isSubtraction = false;
+                    }
+                    if(impp!=null){
+                        if(impp.imagePanel.mainPanel.backGroundSubOnButton!=null){
+                            impp.imagePanel.mainPanel.backGroundSubOnButton.setBackground(null);
+                        }
                     }
                 }
             }
@@ -708,17 +742,25 @@ public class Menus {
 
         menu.add(gamma);
 
-        CheckboxMenuItem findEdges = new CheckboxMenuItem("Find Edges ... ");
+        findEdges = new CheckboxMenuItem("Find Edges ... ");
         findEdges.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
 
                     impp.findedges = true;
                     IJ.runPlugIn(impp, "ij.plugin.filter.Filters", "edge");
+                    if(impp.imagePanel.mainPanel.edgesButton!=null){
+                        impp.imagePanel.mainPanel.edgesButton.setText("On");
+                        impp.imagePanel.mainPanel.edgesButton.setBackground(Color.GREEN);
+                    }
 
                 } else {
 
                     impp.findedges = false;
+                    if(impp.imagePanel.mainPanel.edgesButton!=null){
+                        impp.imagePanel.mainPanel.edgesButton.setText("Off");
+                        impp.imagePanel.mainPanel.edgesButton.setBackground(null);
+                    }
 
                 }
             }
@@ -792,68 +834,79 @@ public class Menus {
      * @return the tools menu
      */
     public Menu createToolMenu() {
-        cmenuItems = new ArrayList<CheckboxMenuItem>();
+        cmenuToolItems = new ArrayList<CheckboxMenuItem>();
 
         final Menu menu = new Menu("Tools", true);
 
         //magnifier, zoom in and out. I would like to add key bindings to this
-        final CheckboxMenuItem mag = addToolMenuItem("Magnifer", Toolbar.MAGNIFIER, cmenuItems);
+        final CheckboxMenuItem mag = addToolMenuItem("Magnifer", Toolbar.MAGNIFIER, cmenuToolItems);
         menu.add(mag);
 
         //hand tool
-        final CheckboxMenuItem hand = addToolMenuItem("Hand", Toolbar.HAND, cmenuItems);
+        final CheckboxMenuItem hand = addToolMenuItem("Hand", Toolbar.HAND, cmenuToolItems);
         menu.add(hand);
 
         //rectangluar selection. Would be nice to match this to the ROI epics PV, and zoom in. 
-        final CheckboxMenuItem rect = addToolMenuItem("Rectangle", Toolbar.RECTANGLE, cmenuItems);
+        final CheckboxMenuItem rect = addToolMenuItem("Rectangle", Toolbar.RECTANGLE, cmenuToolItems);
         rect.setState(true);
         menu.add(rect);
 
         //line tool
-        final CheckboxMenuItem line = addToolMenuItem("Line", Toolbar.LINE, cmenuItems);
+        final CheckboxMenuItem line = addToolMenuItem("Line", Toolbar.LINE, cmenuToolItems);
         menu.add(line);
 
         //oval tool
-        final CheckboxMenuItem oval = addToolMenuItem("Oval", Toolbar.OVAL, cmenuItems);
-        menu.add(oval);
-
+        //final CheckboxMenuItem oval = addToolMenuItem("Oval", Toolbar.OVAL, cmenuToolItems);
+        //menu.add(oval);
         //ellipse tool		
         //add and elliptical selection
         final CheckboxMenuItem ellipse = new CheckboxMenuItem("Ellispe");
+        ellipse.setName("elliptical");
         ellipse.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    for (CheckboxMenuItem cmi : cmenuItems) {
+                    for (CheckboxMenuItem cmi : cmenuToolItems) {
                         if (!cmi.equals(ellipse)) {
                             cmi.setState(false);
                         }
                     }
 
                     IJ.setTool("elliptical");
+
+                    if (impp != null) {
+                        if (impp.imagePanel.mainPanel.toolButtons != null) {
+                            for (JButton b : impp.imagePanel.mainPanel.toolButtons) {
+                                if (b.getName().equals("elliptical")) {
+                                    b.doClick();
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         });
-        cmenuItems.add(ellipse);
+        cmenuToolItems.add(ellipse);
         menu.add(ellipse);
 
         //freehand draw tool
-        final CheckboxMenuItem freehand = addToolMenuItem("Free Hand", Toolbar.FREEROI, cmenuItems);
+        final CheckboxMenuItem freehand = addToolMenuItem("Free Hand", Toolbar.FREEROI, cmenuToolItems);
         menu.add(freehand);
 
         //angle tool
-        final CheckboxMenuItem angle = addToolMenuItem("Angle", Toolbar.ANGLE, cmenuItems);
+        final CheckboxMenuItem angle = addToolMenuItem("Angle", Toolbar.ANGLE, cmenuToolItems);
         menu.add(angle);
 
         //cross hairs
-        final CheckboxMenuItem cross = addToolMenuItem("Crosshair", Toolbar.CROSSHAIR, cmenuItems);
+        final CheckboxMenuItem cross = addToolMenuItem("Crosshair", Toolbar.CROSSHAIR, cmenuToolItems);
         menu.add(cross);
 
         //poly line
-        final CheckboxMenuItem polyline = addToolMenuItem("Polyline", Toolbar.POLYLINE, cmenuItems);
+        final CheckboxMenuItem polyline = addToolMenuItem("Polyline", Toolbar.POLYLINE, cmenuToolItems);
         menu.add(polyline);
 
         //point tool
-        final CheckboxMenuItem point = addToolMenuItem("Point", Toolbar.POINT, cmenuItems);
+        final CheckboxMenuItem point = addToolMenuItem("Point", Toolbar.POINT, cmenuToolItems);
         menu.add(point);
 
         return menu;
@@ -871,6 +924,7 @@ public class Menus {
      */
     public CheckboxMenuItem addToolMenuItem(String type, final int index, final ArrayList<CheckboxMenuItem> cbmi) {
         final CheckboxMenuItem item = new CheckboxMenuItem(type);
+        item.setName(index + "");
         item.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -881,6 +935,16 @@ public class Menus {
                     }
 
                     IJ.setTool(index);
+                    if (impp != null) {
+                        if (impp.imagePanel.mainPanel.toolButtons != null) {
+                            for (JButton b : impp.imagePanel.mainPanel.toolButtons) {
+                                if (b.getName().equals(index + "")) {
+                                    b.doClick();
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -897,8 +961,9 @@ public class Menus {
      */
     public Menu createLUTMenu() {
 
+        final ADWindow win = this.win;
         //final LUTCollection lc = new LUTCollection();
-        final ArrayList<CheckboxMenuItem> cmenuItems = new ArrayList<CheckboxMenuItem>();
+        cmenuLutItems = new ArrayList<CheckboxMenuItem>();
 
         final Menu menu = new Menu("False Color Maps (LUTs)", true);
 
@@ -907,24 +972,25 @@ public class Menus {
         reset.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    for (CheckboxMenuItem cmi : cmenuItems) {
+                    for (CheckboxMenuItem cmi : cmenuLutItems) {
                         if (!cmi.equals(reset)) {
                             cmi.setState(false);
                         }
                     }
 
                     impp.getProcessor().setLut(orginalLUT);
+                    if (impp.imagePanel.mainPanel.lutChoiceBox != null) {
+                        impp.imagePanel.mainPanel.lutChoiceBox.setSelectedItem("None");
+                    }
                     impp.updateAndRepaintWindow();
                 }
             }
         });
-        cmenuItems.add(reset);
+        cmenuLutItems.add(reset);
         menu.add(reset);
 
         menu.addSeparator();
 
-        
-        
         /* loop though lut collection Objects and then add the names*/
         //for (final String s : lc.getMap().keySet()) {
         for (final String s : lc.getSortedKeys()) {
@@ -934,17 +1000,18 @@ public class Menus {
             item.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
                     if (e.getStateChange() == ItemEvent.SELECTED) {
-                        for (CheckboxMenuItem cmi : cmenuItems) {
+                        for (CheckboxMenuItem cmi : cmenuLutItems) {
                             if (!cmi.equals(item)) {
                                 cmi.setState(false);
 
                             }
                         }
-                        changeLUT(lc.getMap().get(item.getLabel()));
+                        changeLUT(lc.getMap().get(item.getLabel()), item.getLabel());
+
                     }
                 }
             });
-            cmenuItems.add(item);
+            cmenuLutItems.add(item);
             menu.add(item);
 
         }
@@ -952,14 +1019,23 @@ public class Menus {
         return menu;
     }
 
-    public void changeLUT(String path) {
+    public void changeLUT(String path, String label) {
         //IJ.run("Rainbow_RGB");
-        Log.log(path , debug);
+        Log.log(path, debug);
         try {
             cm = LutLoader.open(path);
             lut = new LUT(cm, impp.getWidth(), impp.getHeight());
             impp.getProcessor().setLut(lut);
             impp.updateAndRepaintWindow();
+            //set the LUT in the Panel if it can be done
+            if (this.impp != null) {
+                if(impp.imagePanel.mainPanel.lutChoiceBox!=null){
+                 impp.imagePanel.mainPanel.lutChoiceBox.setSelectedItem(label);
+                }
+                Log.log(label, debug);
+            } else {
+                Log.log("win is null", debug);
+            }
 
         } catch (IOException e) {
             // TODO Auto-generated catch block

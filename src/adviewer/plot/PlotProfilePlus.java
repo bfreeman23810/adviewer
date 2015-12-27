@@ -5,6 +5,7 @@
 package adviewer.plot;
 
 import adviewer.util.Helpers;
+import adviewer.util.Log;
 import ij.ImagePlus;
 import ij.gui.ProfilePlot;
 import ij.measure.CurveFitter;
@@ -35,11 +36,24 @@ public class PlotProfilePlus extends ProfilePlot {
         this.imp = imp;
     }
 
-    public PlotPlus getPlot() {
+    public PlotPlus getPlot(boolean isAveraged) {
 
         if (profile == null) {
             return null;
         }
+        
+        //if it is we do not want the averaged data, then change xValues and yValues
+        if(isAveraged == false) {
+            Log.log("Averaging off" , debug);
+            if (averageHorizontally) {
+                     xValues = Helpers.toFloat(  Helpers.getIntXSeries(imp, debug) );
+                     
+            }
+            else{
+                     xValues = Helpers.toFloat(  Helpers.getIntYSeries(imp, debug) );
+            }
+        }
+        
         String xLabel = "Distance (" + units + ")";
         int n = profile.length;
         if (xValues == null) {

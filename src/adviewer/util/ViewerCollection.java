@@ -53,6 +53,7 @@ public class ViewerCollection {
     public void setLists(){
     
         try{ 
+            Log.log( "Running ... " + scriptToGetList , debug);
             String s = SystemCommand.exec(scriptToGetList);
             Log.log(s,debug);
             
@@ -63,6 +64,8 @@ public class ViewerCollection {
                 v.name = scanner.nextLine();
                
                 v.insertedPV =v.name+"T";
+                
+                
                 
                 String sigmas = SystemCommand.exec(scriptToViewerParams + " -n " + v.name);
                 String[] sig = sigmas.split(",");
@@ -128,12 +131,12 @@ public class ViewerCollection {
             
         }
         else{
-            Log.log("viewer list is empty .... or null",debug);
+            //Log.log("viewer list is empty .... or null",debug);
         }
         
         time = new Date().getTime();
         double diff = time  - prevTime;
-        Log.log("Time = " + diff , debug);
+        //Log.log("Time = " + diff , debug);
         
         return s;
         

@@ -196,6 +196,9 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
     public final PlotCanvasPlus pc;
     public static int SLEEPTIME = 250;
 
+    public boolean isAveraged=true;
+
+    
     /**
      * Creates a PlotWindow from a Plot object.
      */
@@ -995,7 +998,7 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
 
             try {
 
-                PlotPlus plot = (PlotPlus) Helpers.getPlotPlus2(this.srcImp, this.isHorizontal, this.showFit,  this.debug);
+                PlotPlus plot = (PlotPlus) Helpers.getPlotPlus2(this.srcImp, this.isHorizontal, this.showFit, this.isAveraged,  this.debug);
                 
                 
                 if (doUpdate && plot != null) {
