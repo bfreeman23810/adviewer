@@ -20,6 +20,7 @@ import adviewer.util.CameraConfig;
 import adviewer.util.Helpers;
 import adviewer.util.Log;
 import adviewer.util.RunSystemCommand;
+import adviewer.util.SwingLink;
 import adviewer.util.SystemCommand;
 import com.charliemouse.cambozola.Viewer;
 import ij.IJ;
@@ -81,6 +82,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import sun.awt.VerticalBagLayout;
 
 /**
  * ADMainPanel.java The main container for all components in an ADWindow Frame.
@@ -458,7 +460,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public Component createEast() {
 
         eastPanel = new Panel();
-        Dimension d = null;
+        
 
         eastPanel.setFocusable(false);
 
@@ -468,9 +470,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
         tabs.add(createToolsPanel(), "Tools");
         tabs.add(createPlotPanel(), "Plots");
         tabs.add(createSavePanel(), "Save");
-        tabs.add(new Panel(), "Info");
+        tabs.add(createInfoPanel(), "Info");
 
-       // tabs.setSelectedIndex(2);
+        tabs.setSelectedIndex(4);
         eastPanel.add(tabs);
 
         return eastPanel;
@@ -2426,6 +2428,57 @@ public class ADMainPanel extends JPanel implements ActionListener {
         return southPanel;
     }
 
+    public Component createInfoPanel(){
+    
+        JPanel panel = new JPanel(new GridBagLayout());
+        
+        GridBagConstraints gc = new GridBagConstraints();
+       gc.gridx = 0;
+       gc.gridy = 0;
+       
+        panel.add(createHelpLink() , gc);
+        
+        gc.gridx = 0;
+       gc.gridy = 1;
+        panel.add(createUsefulLinks(), gc);
+        return panel;
+    }
+    
+     public Component createHelpLink(){
+    
+       
+        JPanel p = new JPanel();
+        String link = "< Click here for Help > ";
+        SwingLink help = new SwingLink(link , "https://github.com/bfreeman23810/adviewer/wiki/");
+        
+       
+        title = BorderFactory.createTitledBorder("ClickForHelp");
+        p.setBorder(title);
+        p.add(help);
+       
+        return p;
+    }
+     
+    public Component createUsefulLinks(){
+    
+       int NUMLINKS = 4;
+        JPanel p = new JPanel(new GridLayout(NUMLINKS,0));
+        
+       
+        SwingLink imagej = new SwingLink("ImageJ" , "http://rsb.info.nih.gov/ij/");
+        SwingLink ad = new SwingLink("AreaDetector" , "https://github.com/areaDetector");
+        SwingLink camboloza = new SwingLink("Camboloza" , "http://www.charliemouse.com/code/cambozola/");
+        
+        p.add(imagej);
+        p.add(ad);
+        p.add(camboloza);
+       
+        title = BorderFactory.createTitledBorder("Other Useful Links");
+        p.setBorder(title);
+       
+        return p;
+    } 
+    
     public void changeLUT(String path) {
         //IJ.run("Rainbow_RGB");
         Log.log(path, win.debug);
