@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.Properties;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -226,7 +227,17 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
         draw();
 
         enableLiveProfiling();
-
+        
+        if(!isX){
+            this.setBorder(BorderFactory.createTitledBorder( 
+                    BorderFactory.createLineBorder(Color.BLACK) , 
+                    "X Plot"));
+        }
+        else{
+            this.setBorder(BorderFactory.createTitledBorder( 
+                    BorderFactory.createLineBorder(Color.BLACK) , 
+                    "Y Plot"));
+        }
     }
 
     

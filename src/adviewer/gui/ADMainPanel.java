@@ -45,6 +45,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.event.ItemEvent;
@@ -59,6 +60,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -82,7 +84,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import sun.awt.VerticalBagLayout;
 
 /**
  * ADMainPanel.java The main container for all components in an ADWindow Frame.
@@ -142,7 +143,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public int seqCount = 1;
     public boolean saveAsSeq = false;
     private Panel xPlotPanel;
-    private Panel imagePanelContainer;
+    private JPanel imagePanelContainer;
     private PlotPlus xp;
     private PlotPanel xpp;
     private Panel yPlotPanel;
@@ -179,6 +180,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public JButton saveBackGroundButton;
     public JButton backGroundSubOnButton;
     public JButton edgesButton;
+    public JLabel statusLight;
     
     /**
      * This version of the constructor takes in a Camera Object, window, and int
@@ -212,7 +214,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Swt CameraCollection
+     * Set CameraCollection
      *
      * @param cams
      */
@@ -277,8 +279,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
      * @return
      */
     public Component createImagePanelContainer() {
-        imagePanelContainer = new Panel(new GridBagLayout());
-        gc.weightx = gc.weighty = 1.0;
+        imagePanelContainer = new JPanel(new GridBagLayout());
+        //gc.weightx = gc.weighty = 1.0;
+        
         gc.gridx = 1;
         gc.gridy = 0;
 
@@ -310,13 +313,13 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 if (imagePanel != null) {
                     southPanel = (Panel) createSouth();
                    
-                    //if (imagePanel.streamer != null && imagePanel.streamer.isCEBAFBC) { //This is a site specific gui component
+                    if (imagePanel.streamer != null && imagePanel.streamer.isCEBAFBC) { //This is a site specific gui component
 
                         //Site specific component - if the ids are seen as certain channels it will build a south panel
-                      //  if (isCEBAFBCandMakeMonitor(cam)) {
+                        if (isCEBAFBCandMakeMonitor(cam)) {
                             this.showSouth();
-                        //}
-                    //}
+                        }
+                    }
                 }
 
             }
@@ -367,6 +370,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 }
             });
             eastButton.setPreferredSize(new Dimension(20, 20));
+            eastButton.setToolTipText("Click to show/ hide expanded Controls");
             // buttons.add(eastButton, BorderLayout.EAST);
         }
 
@@ -472,7 +476,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         tabs.add(createSavePanel(), "Save");
         tabs.add(createInfoPanel(), "Info");
 
-        tabs.setSelectedIndex(4);
+        tabs.setSelectedIndex(0);
         eastPanel.add(tabs);
 
         return eastPanel;
@@ -480,32 +484,33 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     public Component createXPlotPanel() {
         xPlotPanel = new Panel();
-
-        JTabbedPane tabs = new JTabbedPane();
+        
+        //JTabbedPane tabs = new JTabbedPane();
 
         //tabs.setPreferredSize(new Dimension( impp.getWidth() , impp.getHeight()));
-        tabs.add(createXPlot(), "xplot");
+        //tabs.add(createXPlot(), "xplot");
 
-        xPlotPanel.add(tabs);
-
+        xPlotPanel.add(createXPlot());
+        
         return xPlotPanel;
     }
 
     public Component createYPlotPanel() {
         yPlotPanel = new Panel();
 
-        JTabbedPane tabs = new JTabbedPane();
+        //JTabbedPane tabs = new JTabbedPane();
 
         //tabs.setPreferredSize(new Dimension( impp.getWidth() , impp.getHeight()));
-        tabs.add(createYPlot(), "yplot");
+        //tabs.add(createYPlot(), "yplot");
 
-        yPlotPanel.add(tabs);
-
+        yPlotPanel.add(createYPlot());
+       
+        
         return yPlotPanel;
     }
 
     public Component createXPlot() {
-        Panel panel = new Panel();
+        JPanel panel = new JPanel();
 
         boolean isY = false;
         boolean showFit = false;
@@ -517,13 +522,14 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         //PlotCanvas pc = new PlotCanvas(impp);
         //pc.setPlot(xp);
+       
         panel.add(xpp);
 
         return panel;
     }
 
     public Component createYPlot() {
-        Panel panel = new Panel();
+        JPanel panel = new JPanel();
 
         boolean isY = true;
         boolean showFit = false;
@@ -533,52 +539,56 @@ public class ADMainPanel extends JPanel implements ActionListener {
         ypp = new PlotPanel(yp, impp, isY, win.debug);
         ypp.setMainPanel(this); //set a refernce to this panel in PlotPanel
 
+        
+        
         panel.add(ypp);
 
         return panel;
     }
 
     public Component createImagePanel() {
-        Panel panel = new Panel(new GridBagLayout());
+        //JPanel panel = new JPanel(new GridBagLayout());
         // panel.setPreferredSize(new Dimension(200 , 30) );
-        GridBagLayout layout = new GridBagLayout();
-        // GridBagConstraints gc = new GridBagConstraints();
-
+        GridBagConstraints gc = new GridBagConstraints();
+        
+        JPanel p = new JPanel(new GridBagLayout());
+       
+        
+        
         gc.weightx = 1.0;
         gc.weighty = 1.0;
-        gc.fill = GridBagConstraints.BOTH;
+        //gc.fill = GridBagConstraints.HORIZONTAL;
 
-        JPanel p = new JPanel();
-        p.setLayout(layout);
+       
 
         gc.gridx = 0;
         gc.gridy = 0;
-        gc.anchor = GridBagConstraints.WEST;
+        //gc.anchor = GridBagConstraints.WEST;
 
         p.add(createBackGroundSubtractPanel(), gc);
 
         gc.gridx = 0;
         gc.gridy = 1;
-        gc.anchor = GridBagConstraints.WEST;
+        //gc.anchor = GridBagConstraints.WEST;
 
         p.add(createLutDropDownPanel(), gc);
 
         gc.gridx = 0;
         gc.gridy = 2;
-        gc.anchor = GridBagConstraints.WEST;
+       // gc.anchor = GridBagConstraints.WEST;
 
         p.add(createGammaAdjust(), gc);
 
         gc.gridx = 0;
         gc.gridy = 3;
-        gc.anchor = GridBagConstraints.WEST;
+        //gc.anchor = GridBagConstraints.WEST;
 
         p.add(createBrightnessAdjust(), gc);
 
-        gc.gridx = 0;
-        gc.gridy = 0;
-        panel.add(p, gc);
-        return panel;
+       // gc.gridx = 0;
+        //gc.gridy = 0;
+        
+        return p;
     }
 
     
@@ -667,7 +677,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         });
 
         p.add(b);
-        p.add(b1);
+       // p.add(b1);
 
         title = BorderFactory.createTitledBorder("Horizontal Plots");
         p.setBorder(title);
@@ -738,7 +748,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         });
 
         p.add(b);
-        p.add(b1);
+        //p.add(b1);
 
         title = BorderFactory.createTitledBorder("Vertical Plots");
         p.setBorder(title);
@@ -800,8 +810,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
-        gc.weightx = gc.weighty = 1.0;
-
+        //gc.weightx = gc.weighty = 1.0;
+        gc.insets = new Insets(2,2,2,2);
+        
         String sigma = "  \u03A3";
         Dimension d = new Dimension(80, 20);
 
@@ -914,7 +925,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
-
+        gc.insets = new Insets(2,2,2,2);
+        
         String sigma = "  \u03A3";
         Dimension d = new Dimension(80, 20);
 
@@ -1020,40 +1032,36 @@ public class ADMainPanel extends JPanel implements ActionListener {
     }
 
     public Component createToolsPanel() {
-        Panel panel = new Panel(new GridBagLayout());
+        JPanel panel = new JPanel(new GridBagLayout());
         // panel.setPreferredSize(new Dimension(200 , 30) );
-        GridBagLayout layout = new GridBagLayout();
         GridBagConstraints gc = new GridBagConstraints();
-        gc.weightx = gc.weighty = 1.0;
-        gc.fill = GridBagConstraints.BOTH;
-
-        JPanel p = new JPanel();
-        p.setLayout(layout);
+        //gc.weightx = gc.weighty = 1.0;
+        //gc.fill = GridBagConstraints.BOTH;
 
         gc.gridx = 0;
         gc.gridy = 0;
-        gc.anchor = GridBagConstraints.WEST;
+        //gc.anchor = GridBagConstraints.WEST;
 
-        p.add(createShapeTools(), gc);
+        panel.add(createShapeTools(), gc);
 
         gc.gridx = 0;
         gc.gridy = 1;
-        gc.anchor = GridBagConstraints.WEST;
+        //gc.anchor = GridBagConstraints.WEST;
 
-        p.add(createZoomTools(), gc);
+        panel.add(createZoomTools(), gc);
 
-        gc.gridx = 0;
-        gc.gridy = 2;
-        gc.anchor = GridBagConstraints.WEST;
+        //gc.gridx = 0;
+        //gc.gridy = 2;
+        //gc.anchor = GridBagConstraints.WEST;
 
-        p.add(createTestButton(), gc);
+        //p.add(createTestButton(), gc);
 //
 //        gc.gridx = 0;
 //        gc.gridy = 3;
 //        gc.anchor = GridBagConstraints.WEST;
         gc.gridx = 0;
         gc.gridy = 0;
-        panel.add(p, gc);
+        //panel.add(p, gc);
         return panel;
     }
 
@@ -2333,77 +2341,100 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     public Component createMessageLabel() {
 
-        final Panel panel = new Panel(new BorderLayout(2,2)) ;      
-        Dimension d2 = new Dimension(35, 27);
+        final JPanel panel = new JPanel(new BorderLayout(2,2)) ;      
+        final JPanel p1 = new JPanel() ;      
+        
+        
+        Dimension d2 = new Dimension(150, 22);
+        //Dimension d2 = null;
 
         final String defaultString = "Check to get Inserted Viewer";
         messageLabel = makeReadback(defaultString,null);
-       // messageLabel.setPreferredSize(d2);
-       // messageLabel.setAlignmentX(CENTER_ALIGNMENT);
-        //messageLabel.setAlignmentY(CENTER_ALIGNMENT);
-        //messageLabel.setBorder(blackline);
-        //messageLabel.setForeground(Color.WHITE);
+     
 
         final JCheckBox getViewerSigmas = new JCheckBox();
 
-        final Panel labels = new Panel(new GridLayout(6, 2));
-
-        //final JLabel label1 = new JLabel("Viewer:");
-        final JLabel label1 = makeReadback("Viewer:",d2);
-        //final JLabel label2 = new JLabel("SigmaX:");
-        final JLabel label2 = makeReadback("SigmaX:" , d2);
+        statusLight = new JLabel();
+        statusLight.setOpaque(true);
+        statusLight.setPreferredSize(new Dimension(20,20));
+        statusLight.setBackground(Color.GREEN);
+        Border border= BorderFactory.createLineBorder(Color.BLACK);
+        statusLight.setBorder(border);
+        statusLight.setToolTipText("Yellow if ViewerList is updating (more than 24 hrs old), green otherwise");
         
-        //final JLabel label3 = new JLabel("SigmaY:");
-        final JLabel label3 =  makeReadback("SigmaY:",d2);
-        //final JLabel label4 = new JLabel("Aspect Ratio:");
-        final JLabel label4 =  makeReadback("Aspect Ratio:" , d2);
-        //final JLabel label5 = new JLabel("ITVXXXX");
+        final JPanel labels = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+
+        final JLabel label1 = new JLabel("Viewer:");
+        final JLabel label2 = new JLabel("SigmaX:");        
+        final JLabel label3 = new JLabel("SigmaY:");
+        final JLabel label4 = new JLabel("Aspect Ratio:");
+        
         final JLabel label5 =  makeReadback("ITVXXXX" , d2);
-        //final JLabel label6 = new JLabel("1.023");
         final JLabel label6 =  makeReadback("1.023",d2);
-        //final JLabel label7 = new JLabel("2.345");
         final JLabel label7 =  makeReadback("2.345",d2);
-        //final JLabel label8 = new JLabel("1:1.2");
         final JLabel label8 =  makeReadback("1:1.2",d2);
 
-//        label1.setForeground(Color.WHITE);
-//        label2.setForeground(Color.WHITE);
-//        label3.setForeground(Color.WHITE);
-//        label4.setForeground(Color.WHITE);
-//        label5.setForeground(Color.WHITE);
-//        label6.setForeground(Color.WHITE);
-//        label7.setForeground(Color.WHITE);
-//        label8.setForeground(Color.WHITE);
-
-        labels.add(label1);
-        labels.add(label5);
-        labels.add(label2);
-        labels.add(label6);
-        labels.add(label3);
-        labels.add(label7);
-        labels.add(label4);
-        labels.add(label8);
+        
+        c.gridx = 0;
+        c.gridy = 0;
+        c.insets = new Insets(2,2,2,2);
+        labels.add(label1, c );
+        
+        c.gridx = 1;
+        c.gridy = 0;
+        labels.add(label5, c);
+        
+        c.gridx = 0;
+        c.gridy = 1;
+        labels.add(label2,c);
+        
+        c.gridx = 1;
+        c.gridy = 1;
+        labels.add(label6,c);
+        
+        c.gridx = 0;
+        c.gridy = 2;
+        labels.add(label3,c);
+        
+        c.gridx = 1;
+        c.gridy = 2;
+        labels.add(label7,c);
+        
+        c.gridx = 0;
+        c.gridy = 3;
+        labels.add(label4,c);
+        
+        c.gridx = 1;
+        c.gridy = 3;
+        labels.add(label8,c);
+        
+        title = BorderFactory.createTitledBorder("Viewer Info:");
+        labels.setBorder(title);
+        //labels.setPreferredSize(d);
 
         //run to get get viewer names
-        final RunSystemCommand run = new RunSystemCommand(win.debug, 50);
+        final RunSystemCommand run = new RunSystemCommand(win, win.debug, 50);
         run.setLabels(labels, label5, label6, label7, label8);
         run.messageLabel = messageLabel;
-
+        run.statusLight = statusLight;
+        
         getViewerSigmas.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
 
                 if (getViewerSigmas.isSelected()) {
                     run.run = true;
-                    //new Thread(run).start(); //start the thread
-                    panel.add(labels, BorderLayout.SOUTH);
+                    new Thread(run).start(); //start the thread
+                    panel.add(labels, BorderLayout.EAST);
                     messageLabel.setText("Building viewer list.... takes ~1 min ");
+                    statusLight.setBackground(Color.yellow);
 
                 } else {
                     run.run = false;
-                    messageLabel.setText(defaultString);
+                    messageLabel.setText( defaultString );
                     panel.remove(labels);
-
+                    statusLight.setBackground(Color.GREEN);
                 }
                
                 panel.repaint();
@@ -2413,9 +2444,16 @@ public class ADMainPanel extends JPanel implements ActionListener {
         });
 
         //panel.setBackground(Color.BLUE);
-
-        panel.add(messageLabel, BorderLayout.WEST);
-        panel.add(getViewerSigmas, BorderLayout.EAST);
+        
+        
+        
+        p1.add(getViewerSigmas);
+        p1.add(messageLabel);
+        p1.add(statusLight);
+       
+        
+        panel.add(p1, BorderLayout.WEST);
+        
         return panel;
     }
 
@@ -2433,14 +2471,26 @@ public class ADMainPanel extends JPanel implements ActionListener {
         JPanel panel = new JPanel(new GridBagLayout());
         
         GridBagConstraints gc = new GridBagConstraints();
-       gc.gridx = 0;
-       gc.gridy = 0;
        
-        panel.add(createHelpLink() , gc);
+        gc.gridx = 0;
+       gc.gridy = 0;
+       gc.fill = GridBagConstraints.HORIZONTAL;
+       gc.gridwidth = 2;
+       gc.insets = new Insets(2,2,2,2);
+        
+       panel.add(createDescriptionPanel(), gc);
         
         gc.gridx = 0;
        gc.gridy = 1;
+       gc.gridwidth = 1;
+       
+        panel.add(createHelpLink() , gc);
+        
+        gc.gridx = 1;
+       gc.gridy = 1;
         panel.add(createUsefulLinks(), gc);
+        
+       
         return panel;
     }
     
@@ -2451,7 +2501,6 @@ public class ADMainPanel extends JPanel implements ActionListener {
         String link = "< Click here for Help > ";
         SwingLink help = new SwingLink(link , "https://github.com/bfreeman23810/adviewer/wiki/");
         
-       
         title = BorderFactory.createTitledBorder("ClickForHelp");
         p.setBorder(title);
         p.add(help);
@@ -2465,19 +2514,47 @@ public class ADMainPanel extends JPanel implements ActionListener {
         JPanel p = new JPanel(new GridLayout(NUMLINKS,0));
         
        
-        SwingLink imagej = new SwingLink("ImageJ" , "http://rsb.info.nih.gov/ij/");
-        SwingLink ad = new SwingLink("AreaDetector" , "https://github.com/areaDetector");
+        SwingLink imagej = new SwingLink("ImageJ               " , "http://rsb.info.nih.gov/ij/");
+        SwingLink ad = new SwingLink("Area Detector" , "https://github.com/areaDetector");
         SwingLink camboloza = new SwingLink("Camboloza" , "http://www.charliemouse.com/code/cambozola/");
         
         p.add(imagej);
         p.add(ad);
         p.add(camboloza);
        
-        title = BorderFactory.createTitledBorder("Other Useful Links");
+        title = BorderFactory.createTitledBorder("Links");
         p.setBorder(title);
        
         return p;
     } 
+    
+    public Component createDescriptionPanel(){
+    
+        JPanel p = new JPanel();
+        
+        JLabel text = new JLabel();
+        
+        String s = "<html><b>AppName</b>:   ADViewer v" + win.version;
+        s += "<br>";
+        s += "<b>Author:</b>   Brian Freeman (bfreeman@jlab.org)";
+        s += "<br><br>";
+        s += "<b>Purpose:</b> Application used for viewing live  <br>";
+        s += "EPICS streams, and live MJPEG streams. Also utilizes <br>";
+        s += "an ImageJ back end to incooperate some image <br>";
+        s += "processing capablities. See Help below for more <br>";
+        s += "information.<br>";
+        s += "";
+        s += "";
+        s += "</html>";
+        
+        text.setText(s);
+        p.add(text);
+        
+        title = BorderFactory.createTitledBorder("Description");
+        p.setBorder(title);
+        return p;
+        
+    }
     
     public void changeLUT(String path) {
         //IJ.run("Rainbow_RGB");
@@ -2520,7 +2597,10 @@ public class ADMainPanel extends JPanel implements ActionListener {
         label.setOpaque(true);
         label.setForeground(Color.WHITE);
         label.setBackground(Color.BLUE);
-
+        
+        Border pad = BorderFactory.createEmptyBorder(2, 10, 2, 2);
+        label.setBorder(pad);
+        
         if (d != null) {
             label.setPreferredSize(d);
         }

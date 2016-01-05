@@ -5,7 +5,6 @@
  */
 package adviewer.util;
 
-import static com.sun.corba.se.impl.naming.cosnaming.NamingContextImpl.debug;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;

@@ -115,6 +115,38 @@ public class SystemCommand {
 
     }
 
+    public static String exec2(String command) {
+
+        String result = "";
+
+        try {
+
+            // using the Runtime exec method:
+            Process p = Runtime.getRuntime().exec(command);
+
+            Scanner in = new Scanner(p.getInputStream());
+
+            while (in.hasNext()) {
+
+               result += in.nextLine() + "\n";
+
+            }
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+            // System.out.println("Error in getting IC values .... returning zero. Failed at caGet("+aPV+")");
+            //System.exit(-1);
+            //setting the values to some number for testing, need to back to zero after testing
+            result += "null\n";
+
+        }
+
+        return result;
+
+    }
+
+    
     /**
      * public static void main(String args[]){ SystemCommand sys = new
      * SystemCommand(); System.out.print( sys.exec("pwd") );

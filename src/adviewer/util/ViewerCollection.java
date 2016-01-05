@@ -5,6 +5,7 @@
  */
 package adviewer.util;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,8 +30,17 @@ public class ViewerCollection {
     //public String scriptToGetList = "/root/workspace/java/adviewer/listViewers" ;
     //public String scriptToViewerParams = "/root/workspace/java/adviewer/fakeViewerSigma" ;
     
-    public String scriptToGetList = "/cs/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/bin/getViewerList" ;
-    public String scriptToViewerParams = "/cs/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/bin/getViewerSigmas " ;
+    //public String scriptToGetList = "/cs/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/bin/getViewerList" ;
+    //public String scriptToViewerParams = "/cs/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/bin/getViewerSigmas " ;
+   // public String pathToViewersTxt =  "/cs/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/bin/viewers.txt " ;
+    
+    private String scriptToGetList = "/a/dvlcsue/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/bin/getViewerList" ;
+    //private String scriptToViewerParams = "/a/dvlcsue/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/bin/getViewerSigmas" ;
+    private String pathToViewersTxt =  "/a/dvlcsue/dvlhome/apps/a/adViewer/dvl_2-0/src/adviewer/bin/viewers.txt" ;
+   
+    
+    
+    public File viewersFile;
     
     public ViewerCollection(boolean debug){
         init(debug);
@@ -48,33 +58,51 @@ public class ViewerCollection {
         
         //diff should be equal to TIMERWAIT time, since this is what triggers an update
         //double diff = time - prevTime;
+        try{
+            viewersFile = new File(pathToViewersTxt);
+        }
+        catch(Exception e){
+            Log.log(e.getMessage() , debug);
+        }
+        
     }
     
     public void setLists(){
     
         try{ 
             Log.log( "Running ... " + scriptToGetList , debug);
-            String s = SystemCommand.exec(scriptToGetList);
+            //update list if needed
+            String s = SystemCommand.exec2(scriptToGetList);
+            //get List from viewers text file
             Log.log(s,debug);
             
-            Scanner scanner = new Scanner(s);
+            Scanner scanner = new Scanner(viewersFile);
             while(scanner.hasNextLine()){
                 Viewer v = new Viewer();
                 v.debug = this.debug;
-                v.name = scanner.nextLine();
-               
+                String line = scanner.nextLine();
+                
+                 //if comment then keep going
+                if(line.startsWith("#")){ Log.log("Comment found moving on .... ",debug); continue;}
+                
+                String[] params = line.split(",");
+                
+                if(params.length < 3) continue;
+                
+                v.name = params[0];
+                
+                //Log.log(v.name , debug);
+                
+             
                 v.insertedPV =v.name+"T";
+
                 
+                v.sigmaX = params[1];
+                v.sigmaY = params[2];
                 
-                
-                String sigmas = SystemCommand.exec(scriptToViewerParams + " -n " + v.name);
-                String[] sig = sigmas.split(",");
-                
-                v.sigmaX = sig[0];
-                v.sigmaY = sig[1];
                 v.setAspectRatio(v.sigmaX, v.sigmaY);
                 
-                Log.log(v.toString() , debug);
+                //Log.log(v.toString() , debug);
             
                 viewers.put( v.name , v);
                
@@ -141,6 +169,22 @@ public class ViewerCollection {
         return s;
         
         
+    }
+
+    public void setScriptToGetList(String scriptToGetList) {
+        this.scriptToGetList = scriptToGetList;
+    }
+
+    public void setPathToViewersTxt(String pathToViewersTxt) {
+        this.pathToViewersTxt = pathToViewersTxt;
+    }
+
+    public String getScriptToGetList() {
+        return scriptToGetList;
+    }
+
+    public String getPathToViewersTxt() {
+        return pathToViewersTxt;
     }
     
     

@@ -1,5 +1,6 @@
 package adviewer.util;
 
+import adviewer.gui.ADWindow;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
@@ -20,6 +21,8 @@ public class SwingLink extends JLabel {
     
     private Cursor cursor = new Cursor( Cursor.HAND_CURSOR );
 
+    private static final boolean debug = true;
+    
     public SwingLink() {
         super();
         this.setCursor( cursor );
@@ -120,9 +123,24 @@ public class SwingLink extends JLabel {
         return text;
     }
 
+    
+    public static void openSiteSpecific(URI uri) {
+        
+        try {
+          SystemCommand.exec("browse " + uri + " &");
+          //SystemCommand.exec("firefox " + uri + " &");
+        }
+        catch(Exception e){
+            Log.log(e.getMessage(), debug);
+            return;
+        }
+        
+    }
+    
     private static void open(URI uri) {
         if (Desktop.isDesktopSupported()) {
                 Desktop desktop = Desktop.getDesktop();
+                Log.log( desktop.toString() , debug);
                 try {
                         if(uri.toString( ).equals( "" ) || uri.toString( ).equals( null )){
                             JOptionPane.showMessageDialog(null,
@@ -133,10 +151,15 @@ public class SwingLink extends JLabel {
                             desktop.browse(uri);
                         }
                 } catch (IOException e) {
-                    JOptionPane.showMessageDialog(null,
+                   /* JOptionPane.showMessageDialog(null,
                             "Failed to launch the link, " +
                             "your computer is likely misconfigured.",
                             "Cannot Launch Link",JOptionPane.WARNING_MESSAGE);
+                    */
+                    //e.printStackTrace();
+                   
+                    Log.log( e.getMessage() + "", debug);
+                    openSiteSpecific(uri);
                 }
         } else {
             JOptionPane.showMessageDialog(null,

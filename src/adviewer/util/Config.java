@@ -24,14 +24,18 @@ public class Config {
     private String iconPath;     //path to icons 
     private String classPath;    //path to class files
     private String camConfig;    //config file where camera information is stored
+    private String viewerList;
+    private String getViewerList;
 
-   
+    
     
     //these are the strings we will seearch for in the config file
     public static final String LUTPATH = "LUTPATH";     
     public static final String CLASSPATH = "CLASSPATH";
     public static final String CAMCONFIG = "CAMCONFIG";
     public static final String ICONPATH = "ICONPATH";
+    public static final String VIEWERTXT = "VIEWERTXT";
+    public static final String GETVIEWERLIST = "GETVIEWERLIST";
     
     public boolean debug;
     
@@ -65,6 +69,8 @@ public class Config {
                 if(temp[0].equals(ICONPATH)) this.iconPath=temp[1]; 
                 if(temp[0].equals(CLASSPATH)) this.classPath=temp[1]; 
                 if(temp[0].equals(CAMCONFIG)) this.camConfig=temp[1]; 
+                if(temp[0].equals(VIEWERTXT)) this.viewerList=temp[1]; 
+                if(temp[0].equals(GETVIEWERLIST)) this.getViewerList=temp[1]; 
             }
             
             Log.log( toString() , debug);
@@ -84,8 +90,10 @@ public class Config {
         return "[adviewer.config = "+ this.config +" ,\n"
                 + " lutPath = "+ this.lutPath +",\n"
                 + " classPath =  "+this.classPath+",\n"
-                + "camConfig = "+ this.camConfig +"  ]\n"
-                + "iconPath = "+ this.iconPath +"  ]\n";
+                + "camConfig = "+ this.camConfig +",  \n"
+                + "iconPath = "+ this.iconPath +" , \n"
+                + "viewerList = "+ this.viewerList +" , \n"
+                + "getViewerList = "+ this.getViewerList +"  ]\n";
     
     }
     
@@ -109,6 +117,15 @@ public class Config {
     public String getCamConfig() {
         return camConfig;
     }
+    
+    public String getViewerList() {
+        return viewerList;
+    }
+
+    public String getGetViewerList() {
+        return getViewerList;
+    }
+   
     
     /*public static void main(String[] args){
         

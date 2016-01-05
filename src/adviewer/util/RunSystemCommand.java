@@ -12,6 +12,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Scanner;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import adviewer.gui.ADWindow;
 
 /**
  *
@@ -33,19 +35,23 @@ public class RunSystemCommand implements Runnable {
     public String ratio = "X:Y";
     private Choice choices;
     private ViewerCollection vc;
-    private Panel panel;
+    private JPanel panel;
     private JLabel newLabel;
     public JLabel messageLabel;
+    public JLabel statusLight;
+    private ADWindow win;
 
-    public RunSystemCommand(boolean debug, int sleeptime) {
+    public RunSystemCommand(ADWindow win, boolean debug, int sleeptime) {
         this.debug = debug;
+        this.win = win;
         this.SLEEPTIME = sleeptime;
 
     }
 
-    public RunSystemCommand(boolean debug, int sleeptime, JLabel label) {
+    public RunSystemCommand( ADWindow win,boolean debug, int sleeptime, JLabel label) {
         this.debug = debug;
         this.SLEEPTIME = sleeptime;
+        this.win = win;
         this.label1 = label;
     }
 
@@ -58,7 +64,7 @@ public class RunSystemCommand implements Runnable {
         setLabelsToEmpty();
     }
     
-     public void setLabels(Panel p , JLabel l1, JLabel l2, JLabel l3, JLabel l4) {
+     public void setLabels(JPanel p , JLabel l1, JLabel l2, JLabel l3, JLabel l4) {
         this.label1 = l1;
         this.label2 = l2;
         this.label3 = l3;
@@ -87,6 +93,18 @@ public class RunSystemCommand implements Runnable {
     public void run() {
         Log.log("Thread Started @ " + SLEEPTIME + " update", debug);
         vc = new ViewerCollection(debug);//build list of viewers
+        
+        //attempt to set the values of viewers.txt and getViewerList to values found in CONFIG file
+        if(win!=null){
+            if(win.config!=null){
+                vc.setPathToViewersTxt(win.config.getViewerList());
+                vc.setScriptToGetList(win.config.getGetViewerList());
+                
+                Log.log("viewers.txt Location = " + vc.getPathToViewersTxt() +
+                        "\n getViewersList = " + vc.getPathToViewersTxt(), debug);
+            }
+        }
+        
         vc.setLists();//build list of viewers here ..... 
 
         Viewer v = null;
@@ -95,6 +113,7 @@ public class RunSystemCommand implements Runnable {
         newLabel = new JLabel("Select Viewer");
         newLabel.setForeground(Color.white);
         if(messageLabel !=null) messageLabel.setText("DONE building lists....now will monitor insertions...."); 
+        if(statusLight != null) statusLight.setBackground(Color.GREEN);
         
         while (run) {
             try {
