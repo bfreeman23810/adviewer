@@ -142,13 +142,13 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public String fileName;
     public int seqCount = 1;
     public boolean saveAsSeq = false;
-    private Panel xPlotPanel;
+    public Panel xPlotPanel;
     private JPanel imagePanelContainer;
-    private PlotPlus xp;
-    private PlotPanel xpp;
-    private Panel yPlotPanel;
-    private PlotPlus yp;
-    private PlotPanel ypp;
+    public PlotPlus xp;
+    public PlotPanel xpp;
+    public Panel yPlotPanel;
+    public PlotPlus yp;
+    public PlotPanel ypp;
     public JLabel minXVal;
     public JLabel maxXVal;
     public JLabel centroidXVal;
@@ -164,7 +164,6 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public JLabel unitsVal;
     public boolean isSouthShowing;
     public GridBagConstraints gc;
-
     public static final String BC1 = "BC1";
     public static final String BC2 = "BC2";
     public static final String BC3 = "BC3";
@@ -172,7 +171,6 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public static final String INC = "INC_CAM";
     private JComboBox<String> camChooser;
     private JLabel camChooserLabel;
-
     public ImagePlusPlus savedImpp;
     public JComboBox<String> lutChoiceBox;
     public JButton playButton;
@@ -181,7 +179,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public JButton backGroundSubOnButton;
     public JButton edgesButton;
     public JLabel statusLight;
-    
+    private JButton yPlotButton;
+    private JButton xPlotButton;
+
     /**
      * This version of the constructor takes in a Camera Object, window, and int
      *
@@ -284,6 +284,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         
         gc.gridx = 1;
         gc.gridy = 0;
+        gc.insets = new Insets(0, 0, 0, 0);
 
         if (imagePanel != null) {
             imagePanelContainer.add(imagePanel, gc);
@@ -312,7 +313,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 this.add(createNorth(), BorderLayout.NORTH);    //build north  panel
                 if (imagePanel != null) {
                     southPanel = (Panel) createSouth();
-                   
+
                     if (imagePanel.streamer != null && imagePanel.streamer.isCEBAFBC) { //This is a site specific gui component
 
                         //Site specific component - if the ids are seen as certain channels it will build a south panel
@@ -464,7 +465,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public Component createEast() {
 
         eastPanel = new Panel();
-        
+
 
         eastPanel.setFocusable(false);
 
@@ -484,14 +485,17 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     public Component createXPlotPanel() {
         xPlotPanel = new Panel();
-        
+
         //JTabbedPane tabs = new JTabbedPane();
 
         //tabs.setPreferredSize(new Dimension( impp.getWidth() , impp.getHeight()));
         //tabs.add(createXPlot(), "xplot");
 
         xPlotPanel.add(createXPlot());
-        
+
+        int x = xpp.getWidth();
+        Log.log("" + x, win.debug);
+
         return xPlotPanel;
     }
 
@@ -504,8 +508,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
         //tabs.add(createYPlot(), "yplot");
 
         yPlotPanel.add(createYPlot());
-       
-        
+
+
         return yPlotPanel;
     }
 
@@ -522,7 +526,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         //PlotCanvas pc = new PlotCanvas(impp);
         //pc.setPlot(xp);
-       
+
         panel.add(xpp);
 
         return panel;
@@ -533,14 +537,14 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         boolean isY = true;
         boolean showFit = false;
-         boolean isAveraged = true;
+        boolean isAveraged = true;
 
         yp = Helpers.getPlotPlus(impp, isY, showFit, isAveraged, win.debug);
         ypp = new PlotPanel(yp, impp, isY, win.debug);
         ypp.setMainPanel(this); //set a refernce to this panel in PlotPanel
 
-        
-        
+
+
         panel.add(ypp);
 
         return panel;
@@ -550,16 +554,16 @@ public class ADMainPanel extends JPanel implements ActionListener {
         //JPanel panel = new JPanel(new GridBagLayout());
         // panel.setPreferredSize(new Dimension(200 , 30) );
         GridBagConstraints gc = new GridBagConstraints();
-        
+
         JPanel p = new JPanel(new GridBagLayout());
-       
-        
-        
+
+
+
         gc.weightx = 1.0;
         gc.weighty = 1.0;
         //gc.fill = GridBagConstraints.HORIZONTAL;
 
-       
+
 
         gc.gridx = 0;
         gc.gridy = 0;
@@ -575,7 +579,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         gc.gridx = 0;
         gc.gridy = 2;
-       // gc.anchor = GridBagConstraints.WEST;
+        // gc.anchor = GridBagConstraints.WEST;
 
         p.add(createGammaAdjust(), gc);
 
@@ -585,26 +589,27 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         p.add(createBrightnessAdjust(), gc);
 
-       // gc.gridx = 0;
+        // gc.gridx = 0;
         //gc.gridy = 0;
-        
+
         return p;
     }
 
-    
-    private  void open(URI uri) {
-    if (Desktop.isDesktopSupported()) {
-      try {
-        //Desktop.getDesktop().browse(uri);
-          SystemCommand.exec("firefox "+uri + " &");
-        Log.log("trying to open " + uri.toString() , win.debug);
-      } catch (Exception e) { 
-          Log.log("Error in open " + e.getMessage(), win.debug);
-          e.printStackTrace();
-      }
-    } else { Log.log("Unsupported desktop " , win.debug); }
-  }
-    
+    private void open(URI uri) {
+        if (Desktop.isDesktopSupported()) {
+            try {
+                //Desktop.getDesktop().browse(uri);
+                SystemCommand.exec("firefox " + uri + " &");
+                Log.log("trying to open " + uri.toString(), win.debug);
+            } catch (Exception e) {
+                Log.log("Error in open " + e.getMessage(), win.debug);
+                
+            }
+        } else {
+            Log.log("Unsupported desktop ", win.debug);
+        }
+    }
+
     public Component createTestButton() {
         Panel panel = new Panel();
 
@@ -626,11 +631,11 @@ public class ADMainPanel extends JPanel implements ActionListener {
                     //impp.setOverlay(ov);
                     //impp.updateAndRepaintWindow();
                     //imagePanel.ic.;
-                   // win.pack();
+                    // win.pack();
                     URI uri = new URI("https://github.com/bfreeman23810/adviewer/wiki/GUI-Help");
                     open(uri);
                 } catch (URISyntaxException ex) {
-                   Log.log("Error in open .... " + ex.getMessage() , win.debug);
+                    Log.log("Error in open .... " + ex.getMessage(), win.debug);
                 }
             }
         });
@@ -649,19 +654,15 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel(new FlowLayout(2));
 
-        final JButton b = new JButton("X PLOT");
+        xPlotButton = new JButton("X PLOT");
         JButton b1 = new JButton("UPDATE");
 
-        b.addActionListener(new ActionListener() {
+        xPlotButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
 
                 toggleXPlotPanel();
-                if (isXPlotShowing) {
-                    b.setBackground(Color.GREEN);
-                } else {
-                    b.setBackground(null);
-                }
+                
             }
         });
 
@@ -676,8 +677,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
             }
         });
 
-        p.add(b);
-       // p.add(b1);
+        xPlotButton.setToolTipText("Show/Hide plot for horizontal data");
+        p.add(xPlotButton);
+        // p.add(b1);
 
         title = BorderFactory.createTitledBorder("Horizontal Plots");
         p.setBorder(title);
@@ -720,21 +722,19 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel(new FlowLayout(2));
 
-        final JButton b = new JButton("Y PLOT");
+        yPlotButton = new JButton("Y PLOT");
         JButton b1 = new JButton("UPDATE");
 
-        b.addActionListener(new ActionListener() {
+        yPlotButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
 
                 toggleYPlotPanel();
-                if (isYPlotShowing) {
-                    b.setBackground(Color.GREEN);
-                } else {
-                    b.setBackground(null);
-                }
+                
             }
         });
+
+        yPlotButton.setToolTipText("Show/Hide plot for vertical data");
 
         b1.addActionListener(new ActionListener() {
             @Override
@@ -747,7 +747,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
             }
         });
 
-        p.add(b);
+        p.add(yPlotButton);
         //p.add(b1);
 
         title = BorderFactory.createTitledBorder("Vertical Plots");
@@ -800,7 +800,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         title = BorderFactory.createTitledBorder("Units");
         p.setBorder(title);
         panel.add(p);
-       // panel.add(createTurnOffAverage()); //come back to this.... errors on ROI selection and profiles incoorect
+        // panel.add(createTurnOffAverage()); //come back to this.... errors on ROI selection and profiles incoorect
         return panel;
     }
 
@@ -811,8 +811,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
         JPanel p = new JPanel(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
         //gc.weightx = gc.weighty = 1.0;
-        gc.insets = new Insets(2,2,2,2);
-        
+        gc.insets = new Insets(2, 2, 2, 2);
+
         String sigma = "  \u03A3";
         Dimension d = new Dimension(80, 20);
 
@@ -925,8 +925,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         JPanel p = new JPanel(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(2,2,2,2);
-        
+        gc.insets = new Insets(2, 2, 2, 2);
+
         String sigma = "  \u03A3";
         Dimension d = new Dimension(80, 20);
 
@@ -1180,7 +1180,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
     public JButton createToolButton(String iconPath, final int toolId, String toolTip) {
 
         final JButton b = new JButton();
-        b.setName(toolId+"");
+        b.setName(toolId + "");
         b.setIcon(createImageIcon(iconPath, "tool = " + toolId));
         b.setPreferredSize(new Dimension(25, 25));
         b.addActionListener(new ActionListener() {
@@ -1195,20 +1195,19 @@ public class ADMainPanel extends JPanel implements ActionListener {
                         but.setBackground(null);
                     }
                 }
-                
+
                 //sync the context menu
-                if(impp!=null){
-                    if(impp.mainmenu.cmenuToolItems!=null){
-                        for(CheckboxMenuItem cmi : impp.mainmenu.cmenuToolItems){
-                            
-                            if(cmi.getName().equals(b.getName())){
+                if (impp != null) {
+                    if (impp.mainmenu.cmenuToolItems != null) {
+                        for (CheckboxMenuItem cmi : impp.mainmenu.cmenuToolItems) {
+
+                            if (cmi.getName().equals(b.getName())) {
                                 cmi.setState(true);
-                      
-                            }
-                            else{
+
+                            } else {
                                 cmi.setState(false);
                             }
-                            
+
                         }
                     }
                 }
@@ -1247,20 +1246,19 @@ public class ADMainPanel extends JPanel implements ActionListener {
                         but.setBackground(null);
                     }
                 }
-                
+
                 //sync the context menu
-                if(impp!=null){
-                    if(impp.mainmenu.cmenuToolItems!=null){
-                        for(CheckboxMenuItem cmi : impp.mainmenu.cmenuToolItems){
-                            
-                            if(cmi.getName().equals(b.getName())){
+                if (impp != null) {
+                    if (impp.mainmenu.cmenuToolItems != null) {
+                        for (CheckboxMenuItem cmi : impp.mainmenu.cmenuToolItems) {
+
+                            if (cmi.getName().equals(b.getName())) {
                                 cmi.setState(true);
-                               
-                            }
-                            else{
+
+                            } else {
                                 cmi.setState(false);
                             }
-                            
+
                         }
                     }
                 }
@@ -1341,14 +1339,17 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     public void toggleXPlotPanel() {
 
-        gc.gridx = 1;
+       gc.gridx = 1;
         gc.gridy = 1;
 
+        
         if (xPlotPanel != null && isXPlotShowing == true) {
             imagePanelContainer.remove(xPlotPanel);
+            xPlotPanel = null;
             isXPlotShowing = false;
+            xPlotButton.setBackground(null);
             if (xpp != null && xpp.bgThread != null) {
-                Log.log("thread stopped", win.debug);
+                Log.log("x thread stopped", win.debug);
                 if (xpp.bgThread.isAlive()) {
                     xpp.stop();
                 }
@@ -1357,7 +1358,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
             xPlotPanel = (Panel) createXPlotPanel();
             imagePanelContainer.add(xPlotPanel, gc);
             isXPlotShowing = true;
-            Log.log("plot is null .... ", win.debug);
+            xPlotButton.setBackground(Color.GREEN);
+            Log.log("x plot is null .... ", win.debug);
 
         } else {
             imagePanelContainer.add(xPlotPanel, gc);
@@ -1365,7 +1367,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
             Log.log("liveMode = " + xpp.liveMode, win.debug);
             if (xpp.liveMode == false) {
                 xpp.restartLive();
-                Log.log("restarting", win.debug);
+                Log.log("restarting x plot thread", win.debug);
             }
         }
 
@@ -1376,12 +1378,15 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     public void toggleYPlotPanel() {
 
+        //GridBagConstraints gc = new GridBagConstraints();
         gc.gridx = 0;
         gc.gridy = 0;
-
+        
         if (yPlotPanel != null && isYPlotShowing == true) {
             imagePanelContainer.remove(yPlotPanel);
+            yPlotPanel = null;
             isYPlotShowing = false;
+            yPlotButton.setBackground(null);
             if (ypp != null && ypp.bgThread != null) {
                 Log.log("thread stopped", win.debug);
                 if (ypp.bgThread.isAlive()) {
@@ -1392,6 +1397,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
             yPlotPanel = (Panel) createYPlotPanel();
             imagePanelContainer.add(yPlotPanel, gc);
             isYPlotShowing = true;
+            yPlotButton.setBackground(Color.GREEN);
             Log.log("plot is null .... ", win.debug);
 
         } else {
@@ -1422,7 +1428,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
             }
         }
         playButton.setToolTipText("Play Live");
-        
+
         pauseButton = new JButton();
         pauseButton.setIcon(createImageIcon(pathToIcons + "pause_blue_small.png", "pause"));
         pauseButton.setToolTipText("Pause Live");
@@ -1442,8 +1448,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
                     }
                     playButton.setBackground(Color.GREEN);
                     pauseButton.setBackground(null);
-                    
-                    if(impp.mainmenu!=null){
+
+                    if (impp.mainmenu != null) {
                         impp.mainmenu.start.setEnabled(false);
                         impp.mainmenu.stop.setEnabled(true);
                     }
@@ -1461,8 +1467,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
                     }
                     playButton.setBackground(null);
                     pauseButton.setBackground(Color.GREEN);
-                    
-                    if(impp.mainmenu!=null){
+
+                    if (impp.mainmenu != null) {
                         impp.mainmenu.start.setEnabled(true);
                         impp.mainmenu.stop.setEnabled(false);
                     }
@@ -1525,19 +1531,19 @@ public class ADMainPanel extends JPanel implements ActionListener {
                     if (impp.imageUpdater.isSubtraction) {
                         impp.imageUpdater.isSubtraction = false;
                         backGroundSubOnButton.setBackground(null);
-                        if(impp.mainmenu!=null ){
-                            if(impp.mainmenu.subtractionOn!=null){
+                        if (impp.mainmenu != null) {
+                            if (impp.mainmenu.subtractionOn != null) {
                                 impp.mainmenu.subtractionOn.setState(false);
                             }
                         }
-                        
+
                         //b2.setText("Off");
                     } else {
                         impp.imageUpdater.isSubtraction = true;
                         backGroundSubOnButton.setBackground(Color.GREEN);
                         //b2.setText("On");
-                        if(impp.mainmenu!=null ){
-                            if(impp.mainmenu.subtractionOn!=null){
+                        if (impp.mainmenu != null) {
+                            if (impp.mainmenu.subtractionOn != null) {
                                 impp.mainmenu.subtractionOn.setState(true);
                             }
                         }
@@ -1593,7 +1599,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
                         impp.findedges = false;
                         edgesButton.setBackground(null);
                         edgesButton.setText("Off");
-                        if(impp.mainmenu!=null){
+                        if (impp.mainmenu != null) {
                             impp.mainmenu.findEdges.setState(false);
                         }
                         if (impp.imageUpdater == null) {
@@ -1607,7 +1613,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
                         if (impp.imageUpdater == null) {
                             IJ.runPlugIn(impp, "ij.plugin.filter.Filters", "edge");
                         }
-                        if(impp.mainmenu!=null){
+                        if (impp.mainmenu != null) {
                             impp.mainmenu.findEdges.setState(true);
                         }
                     }
@@ -1858,7 +1864,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 }
             }
         });
-        
+
         b7.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -1892,7 +1898,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         p2.add(b5);
         p2.add(b6);
         p2.add(b8);
-        
+
         p.add(p1);
         p.add(p2);
         title = BorderFactory.createTitledBorder("Save Image As");
@@ -2038,46 +2044,55 @@ public class ADMainPanel extends JPanel implements ActionListener {
         return panel;
     }
 
-    
-     public Component createTurnOffAverage(){
+    public Component createTurnOffAverage() {
         JPanel p = new JPanel(new FlowLayout(2));
-        
-        final JCheckBox box = new JCheckBox();
-        
-        JLabel label = new JLabel("Averaging Off :");
-        
-        box.addItemListener(new ItemListener() {
 
+        final JCheckBox box = new JCheckBox();
+
+        JLabel label = new JLabel("Averaging Off :");
+
+        box.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent ie) {
-           
-                if(box.isSelected()) {
-                    
-                    if(xpp!=null) xpp.isAveraged = false;
-                    if(ypp!=null) ypp.isAveraged = false;
-                    
-                } 
-                else{
-                    if(xpp!=null) xpp.isAveraged = true;
-                    if(ypp!=null) ypp.isAveraged = true;
+
+                if (box.isSelected()) {
+
+                    if (xpp != null) {
+                        xpp.isAveraged = false;
+                    }
+                    if (ypp != null) {
+                        ypp.isAveraged = false;
+                    }
+
+                } else {
+                    if (xpp != null) {
+                        xpp.isAveraged = true;
+                    }
+                    if (ypp != null) {
+                        ypp.isAveraged = true;
+                    }
                 }
-                
-               if(xpp!=null) { xpp.imageUpdated(impp);}
-               if(ypp!=null) { ypp.imageUpdated(impp);}
-            
+
+                if (xpp != null) {
+                    xpp.imageUpdated(impp);
+                }
+                if (ypp != null) {
+                    ypp.imageUpdated(impp);
+                }
+
             }
         });
-        
+
         title = BorderFactory.createTitledBorder("AverageOff");
         p.setBorder(title);
-        
+
         p.add(label);
         p.add(box);
-        
+
         return p;
-        
+
     }
-    
+
     public Component createLutDropDownPanel() {
 
         JPanel p = new JPanel(new FlowLayout(2));
@@ -2102,24 +2117,22 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 if (lutChoiceBox.getSelectedItem().equals("None")) {
                     impp.getProcessor().setLut(originalLut);
                     //sync popup menu
-                    for(CheckboxMenuItem cmi : impp.mainmenu.cmenuLutItems){
-                           if(cmi.getLabel().equals("Reset LUT")){
-                               cmi.setState(true);
-                           }
-                           else{
-                               cmi.setState(false);
-                           }
-                     }
-                          
+                    for (CheckboxMenuItem cmi : impp.mainmenu.cmenuLutItems) {
+                        if (cmi.getLabel().equals("Reset LUT")) {
+                            cmi.setState(true);
+                        } else {
+                            cmi.setState(false);
+                        }
+                    }
+
                 } else {
                     changeLUT(win.luts.map.get(lutChoiceBox.getSelectedItem()));
-                    
+
                     //for syncing popmenu
-                     for(CheckboxMenuItem cmi : impp.mainmenu.cmenuLutItems){
-                        if(cmi.getLabel().equals(lutChoiceBox.getSelectedItem())){
+                    for (CheckboxMenuItem cmi : impp.mainmenu.cmenuLutItems) {
+                        if (cmi.getLabel().equals(lutChoiceBox.getSelectedItem())) {
                             cmi.setState(true);
-                        }
-                        else{
+                        } else {
                             cmi.setState(false);
                         }
                     }
@@ -2134,13 +2147,12 @@ public class ADMainPanel extends JPanel implements ActionListener {
                 impp.getProcessor().setLut(originalLut);
 
                 lutChoiceBox.setSelectedItem("None");
-                
+
                 //sync popup menu
-                for(CheckboxMenuItem cmi : impp.mainmenu.cmenuLutItems){
-                    if(cmi.getLabel().equals("Reset LUT")){
+                for (CheckboxMenuItem cmi : impp.mainmenu.cmenuLutItems) {
+                    if (cmi.getLabel().equals("Reset LUT")) {
                         cmi.setState(true);
-                    }
-                    else{
+                    } else {
                         cmi.setState(false);
                     }
                 }
@@ -2153,13 +2165,11 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         p.add(lutChoiceBox);
         p.add(resetLut);
-        p.setFocusable(false);  
+        p.setFocusable(false);
         return p;
 
     }
 
-    
-    
     public Component createCamDropDown() {
         dropPanel = new Panel();
 
@@ -2178,7 +2188,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         camChooserLabel = makeReadback(cam.getName(), new Dimension(140, 20));
         p.add(camChooserLabel);
 
-       // final Choice chooser = new Choice();
+        // final Choice chooser = new Choice();
         String[] ids = new String[cams.map.size()];
         int i = 0;
 
@@ -2193,7 +2203,6 @@ public class ADMainPanel extends JPanel implements ActionListener {
         camChooser = new JComboBox<String>(ids);
         camChooser.setSelectedItem(this.cam.getId());
         camChooser.addItemListener(new ItemListener() {
-
             @Override
             public void itemStateChanged(ItemEvent ie) {
                 Log.log(cams.map.get(camChooser.getSelectedItem()).getId() + " was selected", win.debug);
@@ -2206,12 +2215,12 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
                 camChooserLabel.setText(cam.getName()); //set the text of the label
                 if (impp.imageUpdater != null) {
-                    
+
                     impp.imageUpdater.cam = cam;    //must change the cam object in ImagePlusPLus
                     Log.log(impp.imageUpdater.cam.getName() + "=====" + imagePanel.streamer.cam.getName() + "============", win.debug); // make sure that these match
-                
+
                 } else {    //this was a STATIC image
-                
+
                     savedImpp = impp;
                     imagePanel.startStream(cam.getConnectionType());
                     imagePanel.streamChanged = true;
@@ -2341,74 +2350,74 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
     public Component createMessageLabel() {
 
-        final JPanel panel = new JPanel(new BorderLayout(2,2)) ;      
-        final JPanel p1 = new JPanel() ;      
-        
-        
+        final JPanel panel = new JPanel(new BorderLayout(2, 2));
+        final JPanel p1 = new JPanel();
+
+
         Dimension d2 = new Dimension(150, 22);
         //Dimension d2 = null;
 
         final String defaultString = "Check to get Inserted Viewer";
-        messageLabel = makeReadback(defaultString,null);
-     
+        messageLabel = makeReadback(defaultString, null);
+
 
         final JCheckBox getViewerSigmas = new JCheckBox();
 
         statusLight = new JLabel();
         statusLight.setOpaque(true);
-        statusLight.setPreferredSize(new Dimension(20,20));
+        statusLight.setPreferredSize(new Dimension(20, 20));
         statusLight.setBackground(Color.GREEN);
-        Border border= BorderFactory.createLineBorder(Color.BLACK);
+        Border border = BorderFactory.createLineBorder(Color.BLACK);
         statusLight.setBorder(border);
         statusLight.setToolTipText("Yellow if ViewerList is updating (more than 24 hrs old), green otherwise");
-        
+
         final JPanel labels = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
         final JLabel label1 = new JLabel("Viewer:");
-        final JLabel label2 = new JLabel("SigmaX:");        
+        final JLabel label2 = new JLabel("SigmaX:");
         final JLabel label3 = new JLabel("SigmaY:");
         final JLabel label4 = new JLabel("Aspect Ratio:");
-        
-        final JLabel label5 =  makeReadback("ITVXXXX" , d2);
-        final JLabel label6 =  makeReadback("1.023",d2);
-        final JLabel label7 =  makeReadback("2.345",d2);
-        final JLabel label8 =  makeReadback("1:1.2",d2);
 
-        
+        final JLabel label5 = makeReadback("ITVXXXX", d2);
+        final JLabel label6 = makeReadback("1.023", d2);
+        final JLabel label7 = makeReadback("2.345", d2);
+        final JLabel label8 = makeReadback("1:1.2", d2);
+
+
         c.gridx = 0;
         c.gridy = 0;
-        c.insets = new Insets(2,2,2,2);
-        labels.add(label1, c );
-        
+        c.insets = new Insets(2, 2, 2, 2);
+        labels.add(label1, c);
+
         c.gridx = 1;
         c.gridy = 0;
         labels.add(label5, c);
-        
+
         c.gridx = 0;
         c.gridy = 1;
-        labels.add(label2,c);
-        
+        labels.add(label2, c);
+
         c.gridx = 1;
         c.gridy = 1;
-        labels.add(label6,c);
-        
+        labels.add(label6, c);
+
         c.gridx = 0;
         c.gridy = 2;
-        labels.add(label3,c);
-        
+        labels.add(label3, c);
+
         c.gridx = 1;
         c.gridy = 2;
-        labels.add(label7,c);
-        
+        labels.add(label7, c);
+
         c.gridx = 0;
         c.gridy = 3;
-        labels.add(label4,c);
-        
+        labels.add(label4, c);
+
         c.gridx = 1;
         c.gridy = 3;
-        labels.add(label8,c);
-        
+        labels.add(label8, c);
+
         title = BorderFactory.createTitledBorder("Viewer Info:");
         labels.setBorder(title);
         //labels.setPreferredSize(d);
@@ -2418,7 +2427,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
         run.setLabels(labels, label5, label6, label7, label8);
         run.messageLabel = messageLabel;
         run.statusLight = statusLight;
-        
+
         getViewerSigmas.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -2432,11 +2441,11 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
                 } else {
                     run.run = false;
-                    messageLabel.setText( defaultString );
+                    messageLabel.setText(defaultString);
                     panel.remove(labels);
                     statusLight.setBackground(Color.GREEN);
                 }
-               
+
                 panel.repaint();
                 win.pack();
 
@@ -2444,16 +2453,16 @@ public class ADMainPanel extends JPanel implements ActionListener {
         });
 
         //panel.setBackground(Color.BLUE);
-        
-        
-        
+
+
+
         p1.add(getViewerSigmas);
         p1.add(messageLabel);
         p1.add(statusLight);
-       
-        
+
+
         panel.add(p1, BorderLayout.WEST);
-        
+
         return panel;
     }
 
@@ -2466,74 +2475,74 @@ public class ADMainPanel extends JPanel implements ActionListener {
         return southPanel;
     }
 
-    public Component createInfoPanel(){
-    
+    public Component createInfoPanel() {
+
         JPanel panel = new JPanel(new GridBagLayout());
-        
+
         GridBagConstraints gc = new GridBagConstraints();
-       
+
         gc.gridx = 0;
-       gc.gridy = 0;
-       gc.fill = GridBagConstraints.HORIZONTAL;
-       gc.gridwidth = 2;
-       gc.insets = new Insets(2,2,2,2);
-        
-       panel.add(createDescriptionPanel(), gc);
-        
+        gc.gridy = 0;
+        gc.fill = GridBagConstraints.HORIZONTAL;
+        gc.gridwidth = 2;
+        gc.insets = new Insets(2, 2, 2, 2);
+
+        panel.add(createDescriptionPanel(), gc);
+
         gc.gridx = 0;
-       gc.gridy = 1;
-       gc.gridwidth = 1;
-       
-        panel.add(createHelpLink() , gc);
-        
+        gc.gridy = 1;
+        gc.gridwidth = 1;
+
+        panel.add(createHelpLink(), gc);
+
         gc.gridx = 1;
-       gc.gridy = 1;
+        gc.gridy = 1;
         panel.add(createUsefulLinks(), gc);
-        
-       
+
+
         return panel;
     }
-    
-     public Component createHelpLink(){
-    
-       
+
+    public Component createHelpLink() {
+
+
         JPanel p = new JPanel();
         String link = "< Click here for Help > ";
-        SwingLink help = new SwingLink(link , "https://github.com/bfreeman23810/adviewer/wiki/");
-        
+        SwingLink help = new SwingLink(link, "https://github.com/bfreeman23810/adviewer/wiki/");
+
         title = BorderFactory.createTitledBorder("ClickForHelp");
         p.setBorder(title);
         p.add(help);
-       
+
         return p;
     }
-     
-    public Component createUsefulLinks(){
-    
-       int NUMLINKS = 4;
-        JPanel p = new JPanel(new GridLayout(NUMLINKS,0));
-        
-       
-        SwingLink imagej = new SwingLink("ImageJ               " , "http://rsb.info.nih.gov/ij/");
-        SwingLink ad = new SwingLink("Area Detector" , "https://github.com/areaDetector");
-        SwingLink camboloza = new SwingLink("Camboloza" , "http://www.charliemouse.com/code/cambozola/");
-        
+
+    public Component createUsefulLinks() {
+
+        int NUMLINKS = 4;
+        JPanel p = new JPanel(new GridLayout(NUMLINKS, 0));
+
+
+        SwingLink imagej = new SwingLink("ImageJ               ", "http://rsb.info.nih.gov/ij/");
+        SwingLink ad = new SwingLink("Area Detector", "https://github.com/areaDetector");
+        SwingLink camboloza = new SwingLink("Camboloza", "http://www.charliemouse.com/code/cambozola/");
+
         p.add(imagej);
         p.add(ad);
         p.add(camboloza);
-       
+
         title = BorderFactory.createTitledBorder("Links");
         p.setBorder(title);
-       
+
         return p;
-    } 
-    
-    public Component createDescriptionPanel(){
-    
+    }
+
+    public Component createDescriptionPanel() {
+
         JPanel p = new JPanel();
-        
+
         JLabel text = new JLabel();
-        
+
         String s = "<html><b>AppName</b>:   ADViewer v" + win.version;
         s += "<br>";
         s += "<b>Author:</b>   Brian Freeman (bfreeman@jlab.org)";
@@ -2546,16 +2555,16 @@ public class ADMainPanel extends JPanel implements ActionListener {
         s += "";
         s += "";
         s += "</html>";
-        
+
         text.setText(s);
         p.add(text);
-        
+
         title = BorderFactory.createTitledBorder("Description");
         p.setBorder(title);
         return p;
-        
+
     }
-    
+
     public void changeLUT(String path) {
         //IJ.run("Rainbow_RGB");
         Log.log(path, win.debug);
@@ -2597,10 +2606,10 @@ public class ADMainPanel extends JPanel implements ActionListener {
         label.setOpaque(true);
         label.setForeground(Color.WHITE);
         label.setBackground(Color.BLUE);
-        
+
         Border pad = BorderFactory.createEmptyBorder(2, 10, 2, 2);
         label.setBorder(pad);
-        
+
         if (d != null) {
             label.setPreferredSize(d);
         }
@@ -2608,8 +2617,8 @@ public class ADMainPanel extends JPanel implements ActionListener {
         return label;
 
     }
-    
-     public JTextField makeSetpoint( int l ) {
+
+    public JTextField makeSetpoint(int l) {
 
         JTextField set = new JTextField(l);
         set.setOpaque(true);
@@ -2631,5 +2640,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
 
         return false;
     }
-
+    
+    
+    
 }

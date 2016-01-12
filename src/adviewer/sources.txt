@@ -2,6 +2,7 @@
 ./image/ImagePlusPlus.java
 ./image/MJPGImageStream.java
 ./image/MJPEGStreamSplit.java
+./image/ImageCanvasPlus.java
 ./image/ImageStream.java
 ./image/Stream.java
 ./util/JSONIO.java

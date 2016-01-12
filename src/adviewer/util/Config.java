@@ -24,12 +24,16 @@ public class Config {
     private String iconPath;     //path to icons 
     private String classPath;    //path to class files
     private String camConfig;    //config file where camera information is stored
-    private String viewerList;
-    private String getViewerList;
+    private String viewerList;      //text file of viewers
+    private String getViewerList;   //script to get list of viewers (creates viewers.txt)
+    private String top;             //top level dir
+    private String logPath;             //dir to write log files
 
     
     
     //these are the strings we will seearch for in the config file
+    public static final String TOP = "TOP";     
+    public static final String LOG = "LOG";     
     public static final String LUTPATH = "LUTPATH";     
     public static final String CLASSPATH = "CLASSPATH";
     public static final String CAMCONFIG = "CAMCONFIG";
@@ -50,13 +54,13 @@ public class Config {
     public void getContents(String currDir){
         try{
             //get the path where this file launches from
-            Log.log("Curr Directory = " +currDir , debug);
+            //Log.log("Curr Directory = " +currDir , debug);
            // Path currentRelativePath = Paths.get("");
             //String execPath = currentRelativePath.toAbsolutePath().toString();
             String config = currDir + "/config/" + this.config; //change to absolute path version of config
             this.config = config;
             
-            Log.log("Config path = : " + config , this.debug);
+            //Log.log("Config path = : " + config , this.debug);
             
             File f = new File(config);
             Scanner scanner = new Scanner(f);
@@ -65,7 +69,9 @@ public class Config {
                 String s = scanner.nextLine();
                 String[] temp = s.split("=");
                 
+                if(temp[0].equals(TOP)) this.top=temp[1]; 
                 if(temp[0].equals(LUTPATH)) this.lutPath=temp[1]; 
+                if(temp[0].equals(LOG)) this.logPath=temp[1]; 
                 if(temp[0].equals(ICONPATH)) this.iconPath=temp[1]; 
                 if(temp[0].equals(CLASSPATH)) this.classPath=temp[1]; 
                 if(temp[0].equals(CAMCONFIG)) this.camConfig=temp[1]; 
@@ -73,7 +79,7 @@ public class Config {
                 if(temp[0].equals(GETVIEWERLIST)) this.getViewerList=temp[1]; 
             }
             
-            Log.log( toString() , debug);
+            //Log.log( toString() , debug);
             
         }
         catch(Exception e){
@@ -89,6 +95,7 @@ public class Config {
     public String toString() {
         return "[adviewer.config = "+ this.config +" ,\n"
                 + " lutPath = "+ this.lutPath +",\n"
+                + " log = "+ this.logPath +",\n"
                 + " classPath =  "+this.classPath+",\n"
                 + "camConfig = "+ this.camConfig +",  \n"
                 + "iconPath = "+ this.iconPath +" , \n"
@@ -133,5 +140,14 @@ public class Config {
         
         
     }*/
+
+    public String getLogPath() {
+        return logPath;
+    }
+
+
+    public String getTop() {
+        return top;
+    }
     
 }

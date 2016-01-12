@@ -36,7 +36,7 @@ import org.w3c.dom.NodeList;
 public class CameraCollection {
 
     public static String ADCONFIG = "/root/workspace/java/adviewer/config/adviewer.config";
-    public String CAMERACONFIGPATH = "./config/cam.json";
+    public String CAMERACONFIGPATH = "./config/cams.json";
     //String CAMERACONFIGPATH = "/home/brian/scripts/java/support/camList.txt";
     public boolean debug;
     File configFile;
@@ -99,7 +99,7 @@ public class CameraCollection {
             parseJSON();
            
             if (debug) {
-                printCams();
+                //printCams();
             }
         } catch (Exception e) {
             Log.log("There was a problem parsing the camera config file = " + CAMERACONFIGPATH , debug);           
@@ -116,12 +116,12 @@ public class CameraCollection {
         try {
 
             if (debug) {
-                System.out.println(JSONIO.readJSONFile(configFile));
+               // System.out.println(JSONIO.readJSONFile(configFile));
             }
             JSONIO.setJsonObjects(configFile); //sets the JSONObj Array from static class JSONIO
             setCamObjsFromJSONObjArray(JSONIO.jsonObjects); // now use the above array to map CameraConfig Objects
             if (debug) {
-                System.out.println(JSONIO.printJSONArray("cameras"));
+                //System.out.println(JSONIO.printJSONArray("cameras"));
             }
         } catch (Exception e) {
         }

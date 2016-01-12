@@ -172,6 +172,8 @@ public class ImageStream extends Thread {
         updateCounter = 0;
 
         date = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("YMMDD_HHmmss");
+        
         prevTime = date.getTime();
 
         numImageUpdates = 0;
@@ -187,7 +189,22 @@ public class ImageStream extends Thread {
 
         
         //timer setup
-        timer = new Timer(timerDelay, new ActionListener() {
+        timer = setFPSTimer();
+
+        form = DecimalFormat.getInstance();
+        ((DecimalFormat) form).applyPattern("0.0");
+
+        timer.start();
+        
+        String name = cam.getId()+"_"+ format.format(date);
+        this.setName( name );
+        Log.log("Thread named = " + name , debug);
+        
+        
+    }
+    
+    public Timer setFPSTimer(){
+        return ( new Timer(timerDelay, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -206,22 +223,12 @@ public class ImageStream extends Thread {
 
                 if (impp != null && imagePanel!=null ) {
                     if(imagePanel.mainPanel!=null && imagePanel.mainPanel.fps!=null){
-                        imagePanel.mainPanel.fps.setText(fpsFormatted);
+                        imagePanel.mainPanel.fps.setText(fpsFormatted + " fps");
                     }
                 }
             }
-        });
-
-        form = DecimalFormat.getInstance();
-        ((DecimalFormat) form).applyPattern("0.0");
-
-        timer.start();
         
-        String name = cam.getId()+"_"+ prevTime;
-        this.setName( name );
-        Log.log("Thread named = " + name , debug);
-        
-        
+        }) );
     }
 
     public void addImageChangeListener(ImageChangeListener cl) {

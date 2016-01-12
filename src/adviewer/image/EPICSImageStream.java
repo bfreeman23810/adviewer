@@ -75,7 +75,7 @@ public class EPICSImageStream extends ImageStream implements Stream {
     private ByteArrayInputStream bais;
     private BufferedImage image;
     private byte[] pixels;
-    public int SLEEPTIME = 5;
+    public int SLEEPTIME = 2;
 
     public EPICSImageStream(CameraConfig cam, boolean debug) {
         super(cam);

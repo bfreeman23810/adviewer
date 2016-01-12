@@ -161,8 +161,10 @@ public class PlotProfilePlus extends ProfilePlot {
         } else {
 
             if (imp != null) {
-                plot.MIN_FRAMEWIDTH = imp.getWidth();
-                plot.setSize(plot.MIN_FRAMEWIDTH, plot.MIN_FRAMEHEIGHT);
+               
+                plot.MIN_FRAMEWIDTH = imp.getWidth()+35;
+                plot.setSize(imp.getWidth(), plot.MIN_FRAMEHEIGHT);
+               
                 if (showGaussFit && yFit != null) {
                     plot.setColor(Color.RED);
                     plot.addPoints(xValues, Helpers.toFloat(yFit), plot.LINE);

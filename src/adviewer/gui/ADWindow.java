@@ -23,32 +23,39 @@ import static java.lang.System.exit;
 import java.util.ArrayList;
 
 import com.beust.jcommander.Parameter;
+import ij.Prefs;
+import ij.gui.ImageCanvas;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
- * adviewer.gui.ADWindow.java
- * Top level Frame. This will hold all gui components. Extending ImageJ's
- * ImageWindow Class, to still exploit ImageJ like functionality. The Main 
- * container is ADMainPanel.java/
- * 
- * To start this application first set camera parameters in cam.json
- * (Camera types can be EPICS areaDetector or MJPEG streams)
- * Then type, "run -h" for list of commands
- * Turn debug on by typing -debug
- * 
+ * adviewer.gui.ADWindow.java Top level Frame. This will hold all gui
+ * components. Extending ImageJ's ImageWindow Class, to still exploit ImageJ
+ * like functionality. The Main container is ADMainPanel.java/
+ *
+ * To start this application first set camera parameters in cam.json (Camera
+ * types can be EPICS areaDetector or MJPEG streams) Then type, "run -h" for
+ * list of commands Turn debug on by typing -debug
+ *
  * Usage: run -id MYCAM -debug
- * 
- * For information on ImageJ: http://imagej.nih.gov/ij/
- * For information on areaDector: http://cars9.uchicago.edu/software/epics/areaDetector.html
+ *
+ * For information on ImageJ: http://imagej.nih.gov/ij/ For information on
+ * areaDector: http://cars9.uchicago.edu/software/epics/areaDetector.html
  *
  * @author Brian Freeman
- * 
+ *
  *
  */
 public class ADWindow extends ImageWindow implements WindowListener {
 
     public static final String version = "2.0.0";
-    
+
     public ImagePlusPlus impp;      //ImagePlus Extension from ImageJ
     public ImageJ ij;               //IJ instance
     public ADWindow previousWindow;
@@ -58,11 +65,14 @@ public class ADWindow extends ImageWindow implements WindowListener {
     public LUTCollection luts;      //luts
     public ArrayList<Thread> threads;   //thread tracking
     public ImageStream imageUpdater;    //if live stream, keep reference to what updates this
-    private ImageStream stream;        
+    private ImageStream stream;
+    public File logFile;                //logfile
+    public static Log log;
+    public static String USERNAME = System.getProperties().getProperty("user.name");
+    public static Date date = new Date();
 
     //These parameters are for commadline options using JCommander  
     // see: http://jcommander.org/
-    
     @Parameter(names = {"-debug"}, description = "Set Debugging ")
     public boolean debug = false;
     //@Parameter()
@@ -85,42 +95,57 @@ public class ADWindow extends ImageWindow implements WindowListener {
 
     @Parameter(names = {"-g"}, description = "gui build level ... 0,1,2 ", required = false)
     public int guiBuildNumber = 1;
-    
-    @Parameter(names = {"-u"} , description = "url or mjpeg stream", required = false)
+
+    @Parameter(names = {"-u"}, description = "url or mjpeg stream", required = false)
     public String url;
-    
-    @Parameter(names={"-n"} , description = "name the camera feed" , required = false)
+
+    @Parameter(names = {"-n"}, description = "name the camera feed", required = false)
     public String camName = "deault name";
 
     public JCommander jcomm;
     public Config config;
+    private SimpleDateFormat format;
 
     /**
      * Constructor takes in the Window title and the command line args
+     *
      * @param title
-     * @param args 
+     * @param args
      */
     public ADWindow(String title, String[] args) {
         super(title);
-        BorderLayout layout = new BorderLayout(3,3);
+        BorderLayout layout = new BorderLayout(3, 3);
         this.setLayout(layout);
-        
-        //JCommander object to parse agrs
-       try{
-        jcomm = new JCommander(this, args);
-        jcomm.setProgramName("adviewer");
-       }
-       catch( Exception e ){
-           jcomm = new JCommander(this);
+
+         //JCommander object to parse agrs
+        try {
+            jcomm = new JCommander(this, args);
             jcomm.setProgramName("adviewer");
-           Log.log("Unsupported arg : " + e.getMessage() + "\n" +  e.getCause() , debug);
-           usage();
-           return;
-       }
-        Log.log("my working dirictory .... " + currDir, debug);
+        } catch (Exception e) {
+            jcomm = new JCommander(this);
+            jcomm.setProgramName("adviewer");
+            Log.log("Unsupported arg : " + e.getMessage() + "\n" + e.getCause(), debug);
+            usage();
+            return;
+        }
+       
         
         config = new Config(this.currDir, debug);
-        
+        format = new SimpleDateFormat("YMMdd_HHmmss");
+
+        try {
+
+            logFile = new File(config.getLogPath() + "/adviewer_" + USERNAME + ".log");
+            log = new Log(logFile, this.debug);
+            Log.log("User : " + USERNAME + "\nDebug Level = " + debug, true);
+            Log.log("Date:" + format.format(date), debug);
+            Log.log("my working dirictory .... " + currDir, debug);
+            Log.log("Config params = "+config.toString() , debug);
+
+        } catch (Exception e) {
+            Log.log(e.getMessage(), debug);
+        }
+
         cams = new CameraCollection(config.getCamConfig(), debug);
         luts = new LUTCollection(config.getLutPath(), debug);
 
@@ -142,16 +167,17 @@ public class ADWindow extends ImageWindow implements WindowListener {
 
             Log.log("Path to image .... " + imagePath, debug);
 
-            this.impp = new ImagePlusPlus(imagePath , luts);
+            this.impp = new ImagePlusPlus(imagePath, luts);
             this.imp = impp;
             this.adpanel = new ADMainPanel(impp, this, guiBuildNumber);
             this.ic = adpanel.ic;
-            if(config!=null) this.adpanel.setIconPath(config.getIconPath()); //set the icon path
-            
+            if (config != null) {
+                this.adpanel.setIconPath(config.getIconPath()); //set the icon path
+            }
             if (cams != null) {
                 this.adpanel.setCams(cams); //set cameras
             } else {
-                Log.log("Cams is null ", debug); 
+                Log.log("Cams is null ", debug);
             }
 
             this.setTitle(impp.getTitle());
@@ -161,17 +187,17 @@ public class ADWindow extends ImageWindow implements WindowListener {
             // this.add(adpanel);
             Log.log("Panel added .... ", debug);
 
-        } else if(url!=null){
-            Log.log("URL has been defined ... " , debug);
-            cam = new CameraConfig("stream" , camName , url , CameraConfig.MJPG );
-            if(cams!=null){
+        } else if (url != null) {
+            Log.log("URL has been defined ... ", debug);
+            cam = new CameraConfig("stream", camName, url, CameraConfig.MJPG);
+            if (cams != null) {
                 cams.cameras.add(cam);
                 cams.map.put(cam.getId(), cam);
             }
             init(cam);
-            
+
         } else {
-            Log.log("help me ... " , debug);
+            Log.log("help me ... ", debug);
             this.usage();
             return;
         }
@@ -179,17 +205,17 @@ public class ADWindow extends ImageWindow implements WindowListener {
         //init();
     }
 
-    
     //This version of the constructor is not currently used
     public ADWindow(ImagePlusPlus impp) {
         super(impp.getTitle());
         config = new Config(this.currDir, debug);
-        
+
         if (impp != null) {
             //if impp was defined then we have some static image we are try to look at
             this.adpanel = new ADMainPanel(impp, this, guiBuildNumber);
-            if(config!=null) this.adpanel.setIconPath(config.getIconPath()); //set the icon path
-            
+            if (config != null) {
+                this.adpanel.setIconPath(config.getIconPath()); //set the icon path
+            }
             if (cams != null) {
                 this.adpanel.setCams(cams);
             } else {
@@ -203,20 +229,21 @@ public class ADWindow extends ImageWindow implements WindowListener {
 
         init(impp); //must be called here
 
-        
     }
 
     /**
      * Init using a predefined camera config
-     * @param cam 
+     *
+     * @param cam
      */
     public void init(CameraConfig cam) {
 
         this.cam = cam;
 
         this.adpanel = new ADMainPanel(cam, this, guiBuildNumber);
-        if(config!=null) this.adpanel.setIconPath(config.getIconPath()); //set the icon path
-         
+        if (config != null) {
+            this.adpanel.setIconPath(config.getIconPath()); //set the icon path
+        }
         if (cams != null) {
             this.adpanel.setCams(cams);
         } else {
@@ -237,6 +264,28 @@ public class ADWindow extends ImageWindow implements WindowListener {
 
     }
 
+    public void setResize() {
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension d = toolkit.getScreenSize();
+        
+        
+        
+        this.setMaximumSize(new Dimension(d.width*2, d.height*2));
+
+        
+        
+        this.setResizable(true);
+
+        this.setMaximizedBounds(new Rectangle(d.width * 2, d.height * 2));
+        //if(this.impp!=null) impp.getCanvas()
+
+        //this.setMaximumSize(d);
+        //this.setBounds(new Rectangle( d.width*2, d.height*2 ));
+        Rectangle r = this.getMaximumBounds();
+
+        Log.log(d.getWidth() + " , " + r.width, debug);
+    }
+
     public void addThread(Thread t) {
         threads.add(t);
     }
@@ -248,15 +297,20 @@ public class ADWindow extends ImageWindow implements WindowListener {
 
     /**
      * init using a ImagePlusPlus object
-     * @param impp 
+     *
+     * @param impp
      */
     public void init(ImagePlusPlus impp) {
 
         super.ij = IJ.getInstance();
 
+        if (super.ij == null) {
+            super.ij = new ImageJ(ImageJ.NO_SHOW);
+            Log.log("new ImageJ instance created ... ");
+        }
+
         threads = new ArrayList<Thread>();
 
-       
         this.closed = false;
 
         // if impp is still null here then we somwthing went wrong
@@ -265,7 +319,9 @@ public class ADWindow extends ImageWindow implements WindowListener {
             exit(1);
         } else {
             this.impp.setWindow(this);
+            this.impp.debug = debug;
             this.impp.showMe();
+            
         }
 
         //add listeners
@@ -278,7 +334,9 @@ public class ADWindow extends ImageWindow implements WindowListener {
         setFocusTraversalKeysEnabled(false);
         //if (!(this instanceof StackWindow))
         addMouseWheelListener(this);
+
         setResizable(true);
+//        setResize();
 
         WindowManager.addWindow(this);
         WindowManager.setTempCurrentImage(impp);
@@ -292,17 +350,22 @@ public class ADWindow extends ImageWindow implements WindowListener {
             setBackground(Color.white);
         }
 
-        if(!adpanel.isShowing()) this.add(adpanel);
+        if (!adpanel.isShowing()) {
+            this.add(adpanel);
+        }
 
     }
+    
+	
 
     public static void main(String[] args) {
 
-        ADWindow adwindow = new ADWindow("ADViewer " + version , args);
+        ADWindow adwindow = new ADWindow("ADViewer " + version, args);
 
         Log.log("Here .... in main ", adwindow.debug);
 
         adwindow.pack();
+        adwindow.setResize();
         adwindow.setVisible(true);
     }
 
@@ -346,6 +409,7 @@ public class ADWindow extends ImageWindow implements WindowListener {
             }
 
             super.windowClosing(e);
+
             super.setVisible(false);
 
             if (debug) {
@@ -388,15 +452,17 @@ public class ADWindow extends ImageWindow implements WindowListener {
     public void usage() {
         String s = "";
 
-        if(jcomm!=null) jcomm.usage();
+        if (jcomm != null) {
+            jcomm.usage();
+        }
         System.out.println("Must use -i, -id, or -pv to declare an input....");
-        if(cams!=null) System.out.println("Valid IDs are : \n" + cams.printCamListByID());
+        if (cams != null) {
+            System.out.println("Valid IDs are : \n" + cams.printCamListByID());
+        }
         System.out.println("... or use -i <Valid Picture File>");
         System.out.println("... or use -pv <PV PREFIX>");
         System.out.println("... or use -u <MJPG URL> <-n <cam name> >");
         System.exit(0);
     }
-
-   
 
 }

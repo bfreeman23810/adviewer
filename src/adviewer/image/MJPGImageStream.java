@@ -43,7 +43,7 @@ public class MJPGImageStream extends ImageStream implements Stream {
     public CameraConfig mycam;
     private String BC_UNAME = "alarms";
     private String BC_PW = "alarms1";
-    public int SLEEPTIME = 5;
+    public int SLEEPTIME = 2;
 
     public MJPGImageStream(CameraConfig cam, boolean debug) {
         super(cam);
@@ -419,6 +419,11 @@ public class MJPGImageStream extends ImageStream implements Stream {
         System.out.println(s);
     }
 
+    /**
+     * Connect to secure server. 
+     * Need to make this more generic .... and put uname and pw in config file
+     * @return 
+     */
     public HttpsURLConnection connectToBlueCherry() {
         HttpsURLConnection conn = null;
         if (super.stream == null) {

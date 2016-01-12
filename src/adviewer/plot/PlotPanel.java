@@ -178,6 +178,9 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
     public JLabel twoRmsFit;
     public JLabel fwhmFit;
     
+    public int savedImpWidth;
+    public int savedImpHeight;
+            
 
     // static initializer
     static {
@@ -210,6 +213,9 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
         this.isHorizontal = isX;
 
         srcImp = imp;
+        savedImpWidth = imp.getWidth();
+        savedImpHeight = imp.getHeight();
+        
         this.imp = plot.getImagePlus();
         //plot.setImagePlus(this.imp);
 
@@ -232,6 +238,10 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
             this.setBorder(BorderFactory.createTitledBorder( 
                     BorderFactory.createLineBorder(Color.BLACK) , 
                     "X Plot"));
+             //Dimension d = plot.getSize();
+            
+            //this.setPreferredSize(new Dimension( (int) d.getWidth()+75 , (int) d.getHeight()+20 ));
+            
         }
         else{
             this.setBorder(BorderFactory.createTitledBorder( 
@@ -977,7 +987,8 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
      */
     public synchronized void imageUpdated(ImagePlus imp) {
         //Log.log("src imp Changed ", debug);
-
+        
+        
         if (imp == srcImp) {
             doUpdate = true;
             notify();
@@ -1017,6 +1028,15 @@ public class PlotPanel extends JPanel implements ActionListener, ItemListener, C
                     this.plot = plot;
                     // plot.fitGaussian();
                     pc.setPlot(plot);
+                    
+                    if(savedImpWidth != imp.getWidth()) {
+                        //Log.log("Width Changed");
+                        //this.setPreferredSize(new Dimension( imp.getWidth(), imp.getHeight() ));
+                        //savedImpWidth = imp.getWidth();
+                        //pc.repaint();
+                        //adMain.xPlotPanel.setPreferredSize(new Dimension( imp.getWidth(), imp.getHeight() ));
+                        //adMain.xp.setSize(imp.getWidth(), imp.getHeight());
+                    }
                     
                     ImageProcessor ip = plot.getProcessor();
 

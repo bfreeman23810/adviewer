@@ -44,6 +44,8 @@ import java.util.Vector;
 import adviewer.gui.Menus;
 import adviewer.util.LUTCollection;
 import adviewer.util.Log;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 /**
  * ImagePlusPlus.java inherits from ImageJ's ImagePlus class.
@@ -212,7 +214,8 @@ public class ImagePlusPlus extends ImagePlus {
         //references to this images containers
         this.myCanvas = this.getCanvas();
         this.myWindow = (ADWindow) this.getWindow();
-
+        
+        
         
         if(luts !=null) mainmenu = new Menus(this, luts);
        // else mainmenu = new Menus(this);
@@ -233,7 +236,7 @@ public class ImagePlusPlus extends ImagePlus {
         try {
             orginalLUT = this.getProcessor().getLut();
         } catch (Exception e) {
-            Log.log("Problem with creating the original LUT .... \n" + e.getMessage() , debug);
+            Log.log("Problem with creating the original LUT .... " + e.getMessage() , debug);
         }
 
         imageProcessor = this.getProcessor();
@@ -242,8 +245,11 @@ public class ImagePlusPlus extends ImagePlus {
         tb = new Toolbar();
         ij = IJ.getInstance();
 
-        if (ij == null) {
+       if (ij == null) {
+            Log.log("new ImageJ instance created ... " );
             ij = new ImageJ(ImageJ.NO_SHOW);
+            
+            
         }
 
         
@@ -300,7 +306,8 @@ public class ImagePlusPlus extends ImagePlus {
         //win = null;
         if ((IJ.isMacro() && ij == null) || Interpreter.isBatchMode()) {
             //if (isComposite()) ((CompositeImage)this).reset();
-            ImagePlus img = WindowManager.getCurrentImage();
+            Log.log("...in get Current Image");
+            ImagePlusPlus img = (ImagePlusPlus) WindowManager.getCurrentImage();
             if (img != null) {
                 img.saveRoi();
             }
@@ -310,7 +317,7 @@ public class ImagePlusPlus extends ImagePlus {
         }
 		//if (Prefs.useInvertingLut && getBitDepth()==8 && ip!=null && !ip.isInvertedLut()&& !ip.isColorLut())
         //invertLookupTable();
-        img = getImage();
+        img =  getImage();
         if ((img != null) && (width >= 0) && (height >= 0)) {
             //activated = false;
             int stackSize = getStackSize();
@@ -351,10 +358,17 @@ public class ImagePlusPlus extends ImagePlus {
             addCanvasListeners();
         }
 
+        
         isClosed = false;
         notifyListeners(OPENED);
         this.unlock();
-
+        
+        if(ij !=null){
+            
+             IJ.setDebugMode(debug);
+             Log.log( "ij.debug =  "+IJ.debugMode + " AND debug = " + debug);
+            Log.log(ij.getInfo());
+        }
     }
 
     /*Override the show() method from ImagePlus */

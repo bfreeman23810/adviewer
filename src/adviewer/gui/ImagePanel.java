@@ -1,6 +1,7 @@
 package adviewer.gui;
 
 import adviewer.image.EPICSImageStream;
+import adviewer.image.ImageCanvasPlus;
 import ij.IJ;
 import ij.ImageJ;
 import ij.gui.ImageCanvas;
@@ -23,8 +24,11 @@ import adviewer.image.Stream;
 import adviewer.util.CameraConfig;
 import adviewer.util.LUTCollection;
 import adviewer.util.Log;
+import ij.ImagePlus;
+import ij.gui.GUI;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -58,11 +62,14 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
     public ADMainPanel mainPanel;
     public boolean isImageAquired = false;
     public Timer timer;
-    public int TIME = 33;
+    public int TIME = 15;
     public static final String MJPG = "mjpg";
     public static final String EPICS = "epics";
     public boolean streamChanged = false;
     private LUTCollection luts;
+    private boolean isResetBounds = false;
+    private boolean redrawXPlot = false;
+    private boolean redrawYPlot=false;
 
     ImagePanel() {
         super();
@@ -120,15 +127,16 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
         this.ij = IJ.getInstance();
         timer = new Timer(this.TIME, this);
 
-        //check to see if this a new canvas
+       
         if (this.impp != null && this.streamer != null) {
 
             this.timer.start();
         }
 
+         //check to see if this a new canvas
         if (this.ic == null) {
             newCanvas = true;
-            this.ic = new ImageCanvas(this.impp);
+            this.ic = new ImageCanvasPlus(this.impp);
 
             //this.ic.update(this.ic.getGraphics());
             Log.log("New Canvas Created .... mag = " + this.ic.getMagnification(), win.debug);
@@ -313,9 +321,18 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
                 this.impp = streamer.updateImpp(this.impp, new ImagePlusPlus(cam.getName(), new ByteProcessor(streamer.imageWidth, streamer.imageHeight, streamer.getRawImage())));
                 doImageStuff();
 
+            } else if(impp == null){
+                Log.log("impp = null,  counter =  " + counter, win.debug);
+                //if(win.debug) e.printStackTrace();
+                if (counter > 1000) {
+                 System.exit(1);
+                };
+                counter++;
+                return;
             }
+            
         } catch (Exception e) {
-            Log.log(e.getMessage() + " , counter =  " + counter, win.debug);
+            Log.log("Exception thrown in update ... "+e.getMessage() + " , counter =  " + counter, win.debug);
             //if(win.debug) e.printStackTrace();
             if (counter > 1000) {
                 System.exit(1);
@@ -339,6 +356,20 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
         this.isImageAquired = false;
 
         streamer.numImageUpdates++;
+        if(isResetBounds) {
+            impp.getWindow().setMaximizedBounds(GUI.getMaxWindowBounds());
+            isResetBounds = false;
+        }
+        
+        if(redrawXPlot){
+            redrawXPlot = false;
+            //win.adpanel.toggleXPlotPanel();
+        }
+        
+        if(redrawYPlot){
+            redrawYPlot = false;
+           // win.adpanel.toggleYPlotPanel();
+        }
 
         //streamer.doFpsCalc();
         //this.impp.setFPSText(streamer.fpsFormatted);
@@ -346,25 +377,31 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
 
     public void changeStream() {
         try {
+            isResetBounds = true;
+    
             //try to change data stream
             if (this.cam.getConnectionType().equals(CameraConfig.STATIC)) {
                 if (win.imagePath != null) {
                     if (timer.isRunning()) {
                         timer.stop(); // this stops the image stream ....
                     }
-                    win.init(new ImagePlusPlus(win.imagePath));
+                    this.impp = new ImagePlusPlus(win.imagePath);
+                    win.init(this.impp);
+                   // win.setResize();
 //                    this.impp = new ImagePlusPlus(win.imagePath);
 //                    mainPanel.impp = this.impp;
                     if(streamer!=null) streamer.kill();
                     this.streamer = null;
-                    this.impp = new ImagePlusPlus(win.imagePath);
-                    this.ic = ic;
-                    this.win = win;
+                    
+                    //this.ic = ic;
+                    //this.win = win;
 
                     init();
                     if (streamChanged) {
                         streamChanged = false;
                     }
+                   
+                   // if(win!=null) win.setResize();
                     return;
                 }
             }
@@ -380,7 +417,7 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
                 Log.log(this.streamer.getName() + " is still alive", win.debug);
 
                 //if(!timer.isRunning()) this.timer.start();
-                Thread.sleep(100);
+                Thread.sleep(20);
                 this.streamer.kill();
 
                 //if(this.streamer == null) ;
@@ -397,18 +434,36 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
 
                 impp.imageUpdater = streamer; // sets immp streamer to new value
                 this.streamer.impp = this.impp; //sets the 
-
+                
+                this.streamer.setImagePanel(this);
+                
+               
+                
                 if (!timer.isRunning()) {
                     timer.start(); // restart image stream
                 }
-                Thread.sleep(TIME + 100);
-                //streamChanged = false; // always set back to false
-                //Log.log(" stream changed back to = " + streamChanged, win.debug);
                 if (streamChanged) {
                     streamChanged = false;
                 }
+                
+                Thread.sleep(TIME + 50);
+                //streamChanged = false; // always set back to false
+                //Log.log(" stream changed back to = " + streamChanged, win.debug);
+                
             }
-
+            
+            
+            //if plots are showing then remove them, and then redraw
+            if(win.adpanel.isXPlotShowing){
+                win.adpanel.toggleXPlotPanel();
+                redrawXPlot = true;
+            }
+             //if plots are showing then remove them, and then redraw
+            if(win.adpanel.isYPlotShowing){
+                win.adpanel.toggleYPlotPanel();
+                redrawYPlot = true;
+            }
+            
         } catch (Exception e) {
             Log.log("Problem with setting new stream\n"
                     + e.getMessage(), win.debug);
