@@ -25,6 +25,8 @@ import adviewer.util.SystemCommand;
 import com.charliemouse.cambozola.Viewer;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.WindowManager;
+import ij.gui.ImageWindow;
 import ij.gui.Line;
 import ij.gui.Overlay;
 import ij.gui.Plot;
@@ -34,6 +36,7 @@ import ij.gui.TextRoi;
 import ij.gui.Toolbar;
 import ij.io.FileSaver;
 import ij.plugin.LutLoader;
+import ij.plugin.ScreenGrabber;
 import ij.process.LUT;
 import java.awt.CheckboxMenuItem;
 import java.awt.Choice;
@@ -48,6 +51,9 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Label;
 import java.awt.Panel;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.IndexColorModel;
@@ -258,7 +264,7 @@ public class ADMainPanel extends JPanel implements ActionListener {
             }
         }
 
-        if (this.win != null) { //if I still have a windoe to draw in...
+        if (this.win != null) { //if I still have a window to draw in...
             this.win.impp = imagePanel.impp;    //tell ADWindow which impp obj
             this.impp = this.win.impp;          // ensure my impp is the same
             this.ic = imagePanel.ic;            // set my imageCanvas obj to the same as imagePanel's
@@ -632,10 +638,14 @@ public class ADMainPanel extends JPanel implements ActionListener {
                     //impp.updateAndRepaintWindow();
                     //imagePanel.ic.;
                     // win.pack();
-                    URI uri = new URI("https://github.com/bfreeman23810/adviewer/wiki/GUI-Help");
-                    open(uri);
-                } catch (URISyntaxException ex) {
-                    Log.log("Error in open .... " + ex.getMessage(), win.debug);
+                   // URI uri = new URI("https://github.com/bfreeman23810/adviewer/wiki/GUI-Help");
+                    //open(uri);
+                    
+                    
+                    
+                } catch (Exception ex) {
+                   // Log.log("Error in test .... " + ex.getMessage(), win.debug);
+                    ex.printStackTrace();
                 }
             }
         });
@@ -648,6 +658,9 @@ public class ADMainPanel extends JPanel implements ActionListener {
         panel.setFocusable(false);
         return panel;
     }
+    
+  
+
 
     public Component createXPlotsButtonPanel() {
         Panel panel = new Panel();
@@ -1035,33 +1048,22 @@ public class ADMainPanel extends JPanel implements ActionListener {
         JPanel panel = new JPanel(new GridBagLayout());
         // panel.setPreferredSize(new Dimension(200 , 30) );
         GridBagConstraints gc = new GridBagConstraints();
-        //gc.weightx = gc.weighty = 1.0;
-        //gc.fill = GridBagConstraints.BOTH;
 
         gc.gridx = 0;
         gc.gridy = 0;
-        //gc.anchor = GridBagConstraints.WEST;
 
         panel.add(createShapeTools(), gc);
 
         gc.gridx = 0;
         gc.gridy = 1;
-        //gc.anchor = GridBagConstraints.WEST;
 
         panel.add(createZoomTools(), gc);
 
-        //gc.gridx = 0;
-        //gc.gridy = 2;
-        //gc.anchor = GridBagConstraints.WEST;
-
-        //p.add(createTestButton(), gc);
-//
-//        gc.gridx = 0;
-//        gc.gridy = 3;
-//        gc.anchor = GridBagConstraints.WEST;
         gc.gridx = 0;
-        gc.gridy = 0;
-        //panel.add(p, gc);
+        gc.gridy = 2;
+
+        panel.add(createTestButton(), gc);
+
         return panel;
     }
 

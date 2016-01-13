@@ -23,6 +23,9 @@ import java.awt.RenderingHints;
  */
 public class ImageCanvasPlus extends ImageCanvas{
     
+    private int savedWinWidth = 0;
+    private int savedWinHeight = 0;
+    
     public ImageCanvasPlus(ImagePlusPlus imp){
         super(imp);
         Log.log("ImageCanvasPlusCreated");
@@ -35,8 +38,30 @@ public class ImageCanvasPlus extends ImageCanvas{
         int width = (int) (imp.getWidth()*magnification);
         int height = (int) (imp.getHeight()*magnification);
         
-       super.setSize( width , height );
+        /**
+         * 
+         * this is to fix a bug that prevents the imageCanvas from auto resizing.
+         * set win height and win width 
+         */
+        int winWidth = (int) (imp.getWindow().getWidth()*magnification);
+        int winHeight = (int) (imp.getWindow().getHeight()*magnification); 
+        
+        /**
+         * now check to see if the savedwin size is less...i.e if window size was changed
+         */
+        if( savedWinWidth < winWidth || savedWinHeight < winHeight){
+            //if window size was change the reset the canvas to imp size multiplied by magnification
+            super.setSize( width , height ); 
+            Log.log("size set....");
+            Log.log("Saved Width = " + savedWinWidth
+            +"\nsaved Height = " + savedWinHeight);
+        }
+        
+        
+        savedWinWidth = winWidth;
+        savedWinHeight = winHeight;
        
+       //now call ImageCanvas.paint(Graphics g)
        super.paint(g);
         
     }

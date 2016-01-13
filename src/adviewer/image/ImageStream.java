@@ -180,12 +180,12 @@ public class ImageStream extends Thread {
         viewableFPSUpdateCounter = 0;
         viewableFPS = 0;
 
-        jp = new JPanel();
-        label = new JLabel();
-        icon = new ImageIcon();
+        //jp = new JPanel();
+        //label = new JLabel();
+        //icon = new ImageIcon();
 
-        label.setIcon(icon);
-        jp.add(label);
+        //label.setIcon(icon);
+        //jp.add(label);
 
         
         //timer setup
@@ -342,7 +342,10 @@ public class ImageStream extends Thread {
 
     public void makeImageCopy(String more) {
         ImageProcessor dipcopy = impp.getProcessor().duplicate();
-        ImagePlus imgcopy = new ImagePlusPlus(impp.getTitle(), dipcopy, false);
+        ImagePlusPlus imgcopy = null;
+        if(impp.luts!=null) imgcopy = new ImagePlusPlus(impp.getTitle(), dipcopy, false, impp.luts);
+        else imgcopy = new ImagePlusPlus(impp.getTitle(), dipcopy, false);
+        
         imgcopy.show();
     }
 

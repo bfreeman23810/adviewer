@@ -131,6 +131,12 @@ public class ImagePlusPlus extends ImagePlus {
         super(title, img);
         init();
     }
+    
+    public ImagePlusPlus(String title, Image img , LUTCollection luts) {
+        super(title, img);
+        this.luts = luts;
+        init();
+    }
 
     public ImagePlusPlus(String text, ImageProcessor ip) {
         super(text, ip);
@@ -139,6 +145,13 @@ public class ImagePlusPlus extends ImagePlus {
 
     public ImagePlusPlus(String text, ImageProcessor ip, boolean addListeners) {
         super(text, ip);
+        this.addListeners = addListeners;
+        init();
+    }
+    
+    public ImagePlusPlus(String text, ImageProcessor ip, boolean addListeners, LUTCollection lutss) {
+        super(text, ip);
+        this.luts = luts;
         this.addListeners = addListeners;
         init();
     }
@@ -218,7 +231,7 @@ public class ImagePlusPlus extends ImagePlus {
         
         
         if(luts !=null) mainmenu = new Menus(this, luts);
-       // else mainmenu = new Menus(this);
+        else mainmenu = new Menus(this);
         
         if (this.imageUpdater != null && mainmenu !=null ) {
             mainmenu.setImageUpdater(imageUpdater); // make sure the menu knows that is has an updater
@@ -234,9 +247,12 @@ public class ImagePlusPlus extends ImagePlus {
         
 
         try {
-            orginalLUT = this.getProcessor().getLut();
+            if(this.getProcessor()!=null) {
+                orginalLUT = this.getProcessor().getLut();
+            }
         } catch (Exception e) {
             Log.log("Problem with creating the original LUT .... " + e.getMessage() , debug);
+            e.printStackTrace();
         }
 
         imageProcessor = this.getProcessor();
@@ -535,7 +551,7 @@ public class ImagePlusPlus extends ImagePlus {
 
         //add a menu of false color maps (LUTs) 
         Menu luts = mainmenu.createLUTMenu();
-        menu.add(luts);
+        if(luts!=null) menu.add(luts);
         menu.addSeparator();
 
         Menu tools = mainmenu.createToolMenu();
@@ -572,10 +588,15 @@ public class ImagePlusPlus extends ImagePlus {
         } else {
             //System.out.println("Updater is NULL");
         }
-
+        
+        Menu captureImage = mainmenu.createCaptureMenu();
+        menu.add(captureImage);
+        
         return menu;
     }
 
+    
+    
     //mouse moved override
     @Override
     public void mouseMoved(int x, int y) {

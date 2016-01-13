@@ -356,6 +356,7 @@ public class ImagePanel extends JPanel implements FocusListener, MouseWheelListe
         this.isImageAquired = false;
 
         streamer.numImageUpdates++;
+        
         if(isResetBounds) {
             impp.getWindow().setMaximizedBounds(GUI.getMaxWindowBounds());
             isResetBounds = false;

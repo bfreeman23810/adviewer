@@ -35,11 +35,18 @@ import adviewer.image.ImageStream;
 import adviewer.image.Stream;
 import adviewer.util.LUTCollection;
 import adviewer.util.Log;
+import ij.ImagePlus;
+import ij.WindowManager;
 import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
+import ij.gui.ImageCanvas;
+import ij.gui.ImageWindow;
 import ij.plugin.filter.ImageMath;
 import java.awt.AWTEvent;
 import java.awt.Color;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Robot;
 import javax.swing.JButton;
 
 /**
@@ -108,10 +115,16 @@ public class Menus {
         captureOn = new MenuItem("ON");
         captureOff = new MenuItem("OFF");
 
+        tb = new Toolbar();
+        ij = IJ.getInstance();
+        
         if (impp != null) {
             try {
                 this.win = (ADWindow) impp.myWindow;
-
+                if(this.win==null) this.win = (ADWindow) impp.getWindow();
+                
+                if(this.win==null) return;
+                
                 orginalLUT = impp.getProcessor().getLut();
                 imageProcessor = impp.getProcessor();
 
@@ -130,8 +143,7 @@ public class Menus {
             }
         }
 
-        tb = new Toolbar();
-        ij = IJ.getInstance();
+        
 
         //lc = new LUTCollection();
     }
@@ -454,7 +466,8 @@ public class Menus {
             //add items
             menu.add(avi);
         } catch (Exception e) {
-            System.err.println("There was an issue creating the SaveAs Menu in adviewer.gui.Menus ..... line 452 \n " + e.getMessage());
+            System.err.println("There was an issue creating the SaveAs Menu in adviewer.gui.Menus .... \n " + e.getMessage());
+            e.printStackTrace();
         }
         return menu;
     }
@@ -960,7 +973,9 @@ public class Menus {
      * @return Menu to add to popup menu
      */
     public Menu createLUTMenu() {
-
+        
+        if(lc==null) return null;
+        
         final ADWindow win = this.win;
         //final LUTCollection lc = new LUTCollection();
         cmenuLutItems = new ArrayList<CheckboxMenuItem>();
@@ -1019,6 +1034,40 @@ public class Menus {
         return menu;
     }
 
+    
+    public Menu createCaptureMenu(){
+        
+        Menu menu = new Menu("Screen Caputure");
+        
+        MenuItem captureFull = new MenuItem("Capture Full");
+        MenuItem captureImage = new MenuItem("Capture Image Only");
+        
+        captureFull.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                captureFrame().show();
+            }
+        }); 
+        
+        captureImage.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                ImagePlusPlus impp2 = null;
+                if(impp.luts!=null) impp2 = new ImagePlusPlus(impp.getTitle() , impp.getImage(), impp.luts);
+                else impp2 = new ImagePlusPlus(impp.getTitle() , impp.getImage());
+                impp2.show();
+            }
+        });
+        
+        menu.add(captureImage);
+        menu.add(captureFull);
+        
+        return menu;
+        
+    }
+    
     public void changeLUT(String path, String label) {
         //IJ.run("Rainbow_RGB");
         Log.log(path, debug);
@@ -1047,5 +1096,72 @@ public class Menus {
     public void setImageUpdater(ImageStream imageUpdater) {
         this.imageUpdater = imageUpdater;
     }
-
+/** Captures the active image window and returns it as an ImagePlus. */
+	public ImagePlusPlus captureImage() {
+		ImagePlus imp = (ImagePlusPlus) IJ.getImage();
+		if (imp==null) {
+			IJ.noImage();
+			return null;
+		}
+		ImageWindow win = imp.getWindow();
+		if (win==null) return null;
+		win.toFront();
+		IJ.wait(500);
+		Point loc = win.getLocation();
+		ImageCanvas ic = win.getCanvas();
+		Rectangle bounds = ic.getBounds();
+		//Rectangle bounds = win.getBounds();
+		loc.x += bounds.x;
+		loc.y += bounds.y;
+		Rectangle r = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
+		ImagePlusPlus imp2 = null;
+		Image img = null;
+		boolean wasHidden = ic.hideZoomIndicator(true);
+		IJ.wait(250);
+		try {
+			Robot robot = new Robot();
+			img = robot.createScreenCapture(r);
+		} catch(Exception e) { }
+		ic.hideZoomIndicator(wasHidden);
+		if (img!=null) {
+			String title = WindowManager.getUniqueName(imp.getTitle());
+			imp2 = new ImagePlusPlus(title, img);
+		}
+		return imp2;
+	}
+        
+      /** Captures the active image window and returns it as an ImagePlus. */
+	public ImagePlusPlus captureFrame() {
+		ImagePlus imp = (ImagePlusPlus) IJ.getImage();
+		if (imp==null) {
+			IJ.noImage();
+			return null;
+		}
+		ImageWindow win = imp.getWindow();
+		if (win==null) return null;
+		win.toFront();
+		IJ.wait(500);
+		Point loc = win.getLocation();
+		ImageCanvas ic = win.getCanvas();
+		//Rectangle bounds = ic.getBounds();
+		//Rectangle bounds = win.getBounds();
+		//loc.x += bounds.x;
+		//loc.y += bounds.y;
+		Rectangle r = new Rectangle(win.getX(), win.getY(), win.getWidth(), win.getHeight());
+		ImagePlusPlus imp2 = null;
+		Image img = null;
+		boolean wasHidden = ic.hideZoomIndicator(true);
+		IJ.wait(250);
+		try {
+			Robot robot = new Robot();
+			img = robot.createScreenCapture(r);
+		} catch(Exception e) { }
+		ic.hideZoomIndicator(wasHidden);
+		if (img!=null) {
+			String title = WindowManager.getUniqueName(imp.getTitle());
+			imp2 = new ImagePlusPlus(title, img);
+                }
+		return imp2;
+	}
+    
 }
